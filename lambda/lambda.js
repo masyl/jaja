@@ -172,9 +172,18 @@ function loopOk() {
 	Lambda Tree Generation
 */
 
-//		expression = "uppercase(getAnimalFactory('dog')(7))"
+	/*
+	todo: RECURSIVE PARSERS
+		Currently, it is a fluke of luck and conjecture that makes this code work.
+		The "," is always handled by the "arr" parser because it is the last in the
+		set of "if". As exceptions are found, parsing might need to become recursive
+		and contextual to each sequence sntaxes. ie.: () [] {}
+		NOTE: Refer to the parser approach used in jLexer
 
-
+	todo : Refactor all parser related functions a ojects into a more cohesive structure with
+		its own set of local vars
+		Ex.: parser.parsers / parser.charLookup / parser.run / parser.register
+	*/
 	function runParsers(exp, cursor, token, lambdas) {
 		var i,
 			nextParser,
@@ -194,52 +203,6 @@ function loopOk() {
 		// root parser
 		empty: function (exp, cursor, token, lambdas) {
 			return cursor;
-		},
-		root : function (exp, cursor, token, lambdas) {
-			var i,
-				expLength = exp.length,
-				nextParser,
-				char;
-			/*
-			Todo: REGISTER PARSERS
-				This routine should not hardcoded. Instead, individual parsers should
-				register either test functions or in-characters.
-				Also, iterating through "if" statements containing "indexOf" is slow and will slow down
-				even more as more parsers are implemented. It would surelly by faster to use a hash
-				table pattern.
-
-			todo: RECURSIVE PARSERS
-				Currently, it is a fluke of luck and conjecture that makes this code work.
-				The "," is always handled by the "arr" parser because it is the last in the
-				set of "if". As exceptions are found, parsing might need to become recursive
-				and contextual to each sequence sntaxes. ie.: () [] {}
-				NOTE: Refer to the parser approach used in jLexer
-
-			*/
-			for (i = 0; i < expLength; i = i + 1) {
-				nextParser = parsers.empty;
-				char = exp[i];
-				if (("_"+ALPHA).indexOf(char) >= 0) {
-					nextParser = parsers["var"];
-				}
-				if (".".indexOf(char) >= 0) {
-					nextParser = parsers.get;
-				}
-				if ("(,)".indexOf(char) >= 0) {
-					nextParser = parsers.args;
-				}
-				if ("[,]".indexOf(char) >= 0) {
-					nextParser = parsers.arr;
-				}
-				if ("'\"".indexOf(char) >= 0) {
-					nextParser = parsers.str;
-				}
-				if (NUMERIC.indexOf(char) >= 0) {
-					nextParser = parsers.num;
-				}
-				i = nextParser(exp, i, token, lambdas);
-			}
-			return lambdas;
 		},
 		// variable token parser
 		"var" : function (exp, cursor, token, lambdas) {
@@ -353,7 +316,7 @@ function loopOk() {
 			};
 			parserCollection[iParser] = parserReg;
 			for (iChar in chars) {
-				parserLookup[iChar] = parserReg;
+				parserLookup[chars[iChar]] = parserReg;
 			}
 		}
 	};
@@ -366,6 +329,14 @@ function loopOk() {
 		["'\"", parsers["str"]],
 		[NUMERIC, parsers["num"]],
 	]);
+
+
+
+
+/* **********************************************************************
+	Lambda Tree Evaluation
+*/
+
 
 	LambdasFactory = function () {
 		this.lambdas = [];
@@ -403,12 +374,6 @@ function loopOk() {
 //		return parsers.root(exp, 0, "", lambdas);
 		return runParsers(exp, 0, "", lambdas);
 	};
-
-
-
-/* **********************************************************************
-	Lambda Tree Evaluation
-*/
 
 	lambdas = {
 		// Get a property from the global scope
