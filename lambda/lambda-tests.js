@@ -3,7 +3,9 @@ function lambdaTests() {
 	var expression,
 		result,
 		lambda = window.lambda;
-	
+
+	lambda.compile = false;
+
 	var data = {
 		foo: "bar",
 		getBananas: function getBananas(count) {
@@ -69,7 +71,7 @@ function lambdaTests() {
 		*/
 		lambdas = [
 			["val", ["getBananas"]],
-			["call", [3]]
+			["call", [[["num", ["3"]]]]]
 		];
 		equals(lambda.run(lambdas, data), "3 bananas!", "foo = bar");
 
@@ -79,7 +81,7 @@ function lambdaTests() {
 		lambdas = [
 			["val",["animalFactories"]],
 			["get",["dog"]],
-			["call", [5]]
+			["call", [[["num", ["5"]]]]]
 		];
 		equals(lambda.run(lambdas, data), "5 dogs!", "Lambda: animalFactories.dog(5) - Using getMember");
 
@@ -88,8 +90,8 @@ function lambdaTests() {
 		*/
 		lambdas = [
 			["val",["getAnimalFactory"]],
-			["call", ["dog"]],
-			["call", [7]]
+			["call", [[["str", ["dog"]]]]],
+			["call", [[["num", ["7"]]]]]
 		];
 		equals(lambda.run(lambdas, data), "7 dogs!", "7 dogs in an array");
 
@@ -104,13 +106,13 @@ function lambdaTests() {
 		*/
 
 		lambdas = [
-			["val",["uppercase"]],
+			["val", ["uppercase"]],
 			["call",
 				[
 					[ // new lambda chain as the first parameter
-						["val",["getAnimalFactory"]],
-						["call", ["dog"]],
-						["call", [7]]
+						["val", ["getAnimalFactory"]],
+						["call", [[["str", ["dog"]]]]],
+						["call", [[["num", ["7"]]]]]
 					]
 				]
 			]
@@ -137,8 +139,8 @@ function lambdaTests() {
 			["call", [
 				[ // new lambda chain as the first parameter
 					["val", ["getAnimalFactory"]],
-					["call", [["str","dog"]]],
-					["call", [["num","7"]]]
+					["call", [[["str", "dog"]]]],
+					["call", [[["num", "7"]]]]
 				]
 			]]
 		];
@@ -159,7 +161,7 @@ function lambdaTests() {
 		expression = "uppercase('yata!')";
 		lambdas = [
 			["val", ["uppercase"]],
-			["call", [["str", "yata!"]]]
+			["call", [["str", ["yata!"]]]]
 		];
 		// PERFORMANCE NOTE: 
 		// On netbook VIA C7 Processor this benchmarked at:
@@ -177,9 +179,9 @@ function lambdaTests() {
 		expression = "uppercase('yata!').split(3)";
 		lambdas = [
 			["val", ["uppercase"]],
-			["call",[["str","yata!"]]],
+			["call",[["str", ["yata!"]]]],
 			["get", ["split"]],
-			["call",[["num", "3"]]],
+			["call",[["num", ["3"]]]],
 		];
 		// PERFORMANCE NOTE: 
 		// On netbook VIA C7 Processor this benchmarked at:
@@ -194,7 +196,6 @@ function lambdaTests() {
 
 
 	module("Complete expression evaluation");
-
 
 	test("basic expressions ", function() {
 		expression = "uppercase('1234', 'abcde', '4321').substring(3, 10)";
@@ -246,7 +247,13 @@ function lambdaTests() {
 	});
 
 	test("Adressing a multi-dimension array", function() {
-		expression = "numberMatrix[2,2]";
+		expression = "numberMatrix[2,2].join(', ')";
+		result = "two zero, two one, two two, two three";
+		equals(lambda.eval(expression, data), result, expression + " === " + result);
+	});
+
+	test("Adressing a multi-dimension array", function() {
+		expression = "numberMatrix[2][2]";
 		result = "two two";
 		equals(lambda.eval(expression, data), result, expression + " === " + result);
 	});

@@ -1,7 +1,8 @@
 function lambdaTests() {
 
 	var lambda = window.lambda;
-	
+	lambda.compile = true;
+
 	var data = {
 		foo: "bar",
 		getBananas: function getBananas(count) {

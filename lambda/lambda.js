@@ -1,9 +1,7 @@
 "use strict";
 /*
-jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, strict: true, newcap: true, immed: true, maxerr: 100 */
-/*
 
-	lambda.eval v0.4
+	lambda.eval v0.5.0
 
 	Eval minus the evil
 
@@ -14,13 +12,19 @@ OVERVIEW
 
 	Expression are evaluated securelly by first deconstructing them into a more primitive
 	lamda tree structure and then executed in a "managed" way. At no point is the interpreted
-	code allowed to access anything outside of the scope you specificlly provide for it.
+	code allowed to access anything outside of the scope you specificlly provide for it. Expressions
+	can either be "interpreted" in real-time or compiled to anonymous functions.
 
 	For example, the expression cant cant find out about the window object unless you voluntarally
 	add the window to the execution scope.
 
 	This library was originally built to be used in a javascript templating engine, but I invite you
 	to find other original use for it.
+
+
+USAGE
+
+	Refer to the test suite found in lambda-tests.html for sample usage.
 
 
 WHY IS EVAL CONSIDERED EVIL
@@ -35,8 +39,9 @@ WHY IS EVAL CONSIDERED EVIL
 FEATURES OVERVIEW:
 
 	- Syntax support for strings, numbers, arrays, function calls
-	- Evaluate simple functionnal expression (without operators) 
+	- Evaluate simple functionnal expression (without operators)
 	- Secure execution by use of an explicit and restricted scope
+	- Choice between using a compiler or interpreter to evaluate the expressions
 	- Caching of parsed expressions
 
 
@@ -60,20 +65,11 @@ KNOWN LIMITATIONS
 			such as Query does, something similar to sequences statement could be achieved.  But
 			phylosophically, expressions should only compute values, not run logic.
 
-	Limitations up for considerations:
-		- The lambda tree is still interpreted, no compiled.
-			Rationnal: To achieve some performance gains, the expression tree could be compiled back into
-			native javascript functions using the Function contructor. Along with performance gain, this
-			could provide a more debugging insight and output visibility to developers struggling with
-			complex expressions. The flip side, is that using the "Function" constructor might still be
-			considered harmfull by many developers considering inclusion in their solutions, and in some
-			environments it might even be prohiited. One solution is to provide an "injection hook" where
-			a developer could inject the Function constructor and the Compiler. The library could simply
-			detect its presence and bypass the array-based execution process. This would have to be created
-			in a way that doesnt had weight to the core library.
-
 
 RELEASE HISTORY
+
+	Release 0.5.0:
+		- Added a compiler. Expressions can either be interpreted through the Runner or compiled to anonymous functions.
 
 	Release 0.4.1:
 		- Optimization and more accurate array parsing
@@ -95,17 +91,17 @@ RELEASE HISTORY
 
 ROADMAP
 
-
-	Release 0.5.0:
-		- Support for object literals
-
-	Release 0.5.0:
+	Release 0.5.1:
 		- Support for more complex numbers
+
+	Release 0.5.2:
+		- Cache the resulting function from compiled expression 
 
 	Release 0.6.0:
 		- Ability to specify prohibited objects (by reference) such as document, eval, window, etc..
 
 	Release 0.7.0:
+		- Support for object literals
 
 	Release 0.8.0:
 		- Support for "precedence-less" arythmetic operators: + -
@@ -154,19 +150,21 @@ function loopOk() {
 	};
 }
 */
+/*
+jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, strict: true, newcap: true, immed: true, maxerr: 100
+*/
 (function () {
+
 	var NUMERIC = "0123456789", // Constant used for expression parsing
 		ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",  // Constant used for expression parsing
 		parsers, // The collection of parser function used to transform the expresison into lambdas
-		lambda, // function to create a lambda structure from an expressino
-		lambdas, // Collection of primitive lambdas user to execute a lamda tree
-		callLambda, // Call a single lambda with the appropriate execution context
-		evalNextLambda, // Evaluate the next lambda in the current sequence of lambdas
-		evalArguments, // Evaluate a series of arguments as individual lambda sequences
 		LambdasFactory, // Instantiate a single lambda object
+		cachedExpressions = {}, // Collection of expressions previously cached
+		parserCollection = {}, // Collection of registered parsers
+		parserLookup = {}, // A lookup table between chars and registered parsers
+		lambda, // function to create a lambda structure from an expressino
 		run, // Runs a lambda sequence within a provided scope to obtain a value
-		lesserEval, // Evaluate an textual expression within a provided scope to obtain a value
-		cachedExpressions = {}; // Collection of expressions previously cached
+		lesserEval; // Evaluate an textual expression within a provided scope to obtain a value
 
 /* **********************************************************************
 	Lambda Tree Generation
@@ -183,6 +181,13 @@ function loopOk() {
 	todo : Refactor all parser related functions a ojects into a more cohesive structure with
 		its own set of local vars
 		Ex.: parser.parsers / parser.charLookup / parser.run / parser.register
+	*/
+	/*
+	runParsers()
+	Takes a string expression and runs it through a parsing routine. In this routines
+	the expression is treated as a queue of chars that is handed out to individual
+	parsers depending on which char is at the last index. Each parsers then modifies the
+	lambda stack.
 	*/
 	function runParsers(exp, cursor, token, lambdas) {
 		var i,
@@ -216,7 +221,6 @@ function loopOk() {
 				}
 			}
 			lambdas.addLambda("val", [exp.substring(cursor, i)]);
-			//console.log("out of parser: ", exp[i]);
 			return i - 1;
 		},
 		// member token parser
@@ -230,7 +234,6 @@ function loopOk() {
 				}
 			}
 			lambdas.addLambda("get", [exp.substring(cursor + 1, i)]);
-			//console.log("out of parser: ", exp[i]);
 			return i - 1;
 		},
 		"args" : function (exp, cursor, token, lambdas) {
@@ -245,7 +248,6 @@ function loopOk() {
 				lambdas.exitArgs();
 				//parsers.root(exp, cursor+1, token, lambdas)
 			} else if (char === ",") {
-				//console.log("nextArg!");
 				lambdas.newArg();
 			}
 			return cursor;
@@ -297,8 +299,10 @@ function loopOk() {
 		}
 	};
 
-	var parserCollection = {};
-	var parserLookup = {};
+	/*
+	registerParsers()
+	Registers new parsers to the parsers collection to later be used by runParsers
+	*/
 	function registerParsers(parsers) {
 		var parser,
 			parserReg,
@@ -337,7 +341,11 @@ function loopOk() {
 	Lambda Tree Evaluation
 */
 
-
+	/*
+	LambdaFactory()
+	The lambdaFactory contains the state and methods necessary to create a
+	lambdaTree piece by piece while an parser is analyzing an expression.
+	*/
 	LambdasFactory = function () {
 		this.lambdas = [];
 		this.latestLambda = null;
@@ -369,129 +377,236 @@ function loopOk() {
 		};
 	};
 
-	lambda = function (exp) {
-		var lambdas = new LambdasFactory();
-//		return parsers.root(exp, 0, "", lambdas);
-		return runParsers(exp, 0, "", lambdas);
-	};
-
-	lambdas = {
-		// Get a property from the global scope
-		"str": function (value, scope, args) {
-			return String(args[0]);
-		},
-		"num": function (value, scope, args) {
-			return Number(args[0]);
-		},
-		"val": function (value, scope, args) {
-			// TODO: To save space and adressing/lookup time, should content o
-			// the scope be sent as parameters instead of an object ?
-			return scope[0][args[0]];
-		},
-		// Get a member property from the current expresion value
-		"get": function (value, scope, args) {
-			return value[args[0]];
-		},
-		"call": function (value, scope, args) {
-			return value.apply(this, args);
-		},
-		// todo: Find better handler names than arrGet and arrVal 
-		"arrGet": function (value, scope, args) {
-			var val,
-				i;
-			val = value;
-			for (i = 0; i < args.length; i = i + 1) {
-				val	= val[args[i]];
-			}
-			return val;
-		},
-		"arrVal": function (value, scope, args) {
-			return new Array(args);
-		}
-	};
-
-	callLambda = function (id, value, scope, args, parentValue) {
-		// todo: figure out what "this" should be
-		return lambdas[id].apply(parentValue, [value, scope, args]);
-	};
-
 	/*
-	Start evaluating a chain of lambda operation to output a final value
+	Runner
+	The class used to evaluate/execute a lambda tree 
 	*/
-	evalNextLambda = function (lambdaArray, index, value, scope, parentValue) {
-		//console.log("evalNextLambda", lambdaArray, index, value, scope);
-		var lambda,
-			newValue;
-		lambda = lambdaArray[index - 1];
-		// Iterate across the list of arguments for this lambda
-		// If an argument is an array object, it is recursed back into evalNextLambda
-		// Reload into the scope object the cached value of this part of the expression
-		// Execute and return the current lambda expression 
-		newValue = callLambda(lambda[0], value, scope, evalArguments(lambda[1], value, scope, parentValue), parentValue);
-		// If the lambda chain still has items to evaluate the next item is evaluated
-		if (index < lambdaArray.length) {
-			newValue = evalNextLambda(lambdaArray, index + 1, newValue, scope, value);
-		}
-		return newValue;
-	};
+	function Runner() {
 
-	evalArguments = function (args, value, scope, parentValue) {
-		//console.log("args, value, scope", args, value, scope);
-		var i,
-			arg,
-			argValues = [];
-		if (args) {
-			for (i = 0; i < args.length; i = i + 1) {
-				arg = args[i];
-				//console.log("arg", arg);
-				//console.log("arg.length", arg.length);
-				// If the item is a 2 member array it is deemed to be a lambda
-				// Todo: test performance impact of this type of detection
-				// Todo: See if this procludes the use of arrays as values...
-				if (arg.sort && arg.length > 0) {
-					// Note that when evaluating each arguments, the "value" argument is set to null
-					// because each arg is a fresh expression in itself
-					argValues.push(evalNextLambda(arg, 1, null, scope, parentValue));
-				} else {
-					argValues.push(arg);
+		// lambdas: The collection of lambda handlers used to execute a lambda tree
+		//lambdas = {
+		this.lambdas = {
+			// Get a property from the global scope
+			"str": function (value, scope, args) {
+				return String(args[0]);
+			},
+			"num": function (value, scope, args) {
+				return Number(args[0]);
+			},
+			"val": function (value, scope, args) {
+				// TODO: To save space and adressing/lookup time, should content o
+				// the scope be sent as parameters instead of an object ?
+				return scope[0][args[0]];
+			},
+			// Get a member property from the current expresion value
+			"get": function (value, scope, args) {
+				return value[args[0]];
+			},
+			"call": function (value, scope, args) {
+				return value.apply(this, args);
+			},
+			// todo: Find better handler names than arrGet and arrVal 
+			"arrGet": function (value, scope, args) {
+				var val;
+				val = value;
+				val	= val[args[args.length-1]];
+				return val;
+			},
+			"arrVal": function (value, scope, args) {
+				return new Array(args);
+			}
+		};
+	
+		this.callLambda = function (id, value, scope, args, parentValue) {
+			// todo: figure out what "this" should be
+			return this.lambdas[id].apply(parentValue, [value, scope, args]);
+		};
+	
+		/*
+		Start evaluating a chain of lambda operation to output a final value
+		*/
+		this.evalNextLambda = function (lambdaArray, index, value, scope, parentValue) {
+			//console.log("evalNextLambda", lambdaArray, index, value, scope);
+			var lambda,
+				newValue;
+			lambda = lambdaArray[index - 1];
+			// Iterate across the list of arguments for this lambda
+			// If an argument is an array object, it is recursed back into evalNextLambda
+			// Reload into the scope object the cached value of this part of the expression
+			// Execute and return the current lambda expression 
+			newValue = this.callLambda(lambda[0], value, scope, this.evalArguments(lambda[1], value, scope, parentValue), parentValue);
+			// If the lambda chain still has items to evaluate the next item is evaluated
+			if (index < lambdaArray.length) {
+				newValue = this.evalNextLambda(lambdaArray, index + 1, newValue, scope, value);
+			}
+			return newValue;
+		};
+
+		this.evalArguments = function (args, value, scope, parentValue) {
+			//console.log("args, value, scope", args, value, scope);
+			var i,
+				arg,
+				argValues = [];
+			if (args) {
+				for (i = 0; i < args.length; i = i + 1) {
+					arg = args[i];
+					//console.log("arg", arg);
+					//console.log("arg.length", arg.length);
+					// If the item is a 2 member array it is deemed to be a lambda
+					// Todo: test performance impact of this type of detection
+					// Todo: See if this procludes the use of arrays as values...
+					if (arg.sort && arg.length > 0) {
+						// Note that when evaluating each arguments, the "value" argument is set to null
+						// because each arg is a fresh expression in itself
+						argValues.push(this.evalNextLambda(arg, 1, null, scope, parentValue));
+					} else {
+						argValues.push(arg);
+					}
 				}
 			}
-		}
-//		console.log("Arguments that have been parsed.... argValue = ");
-//		console.dir(argValues);
-		return argValues;
+			//console.log("Arguments that have been parsed.... argValue = ");
+			//console.dir(argValues);
+			return argValues;
+		};
+
 	};
 
 
-/* **********************************************************************
 
-*/
-	run = function (lambdaArray, baseScope) {
-//		console.log("evalLambdaArray");
-//		console.dir(lambdaArray);
-		return evalNextLambda(lambdaArray, 1, null, [baseScope]);
+	/*
+	Compiler
+	The class used to compile a lambda tree into a function
+	*/
+	function Compiler() {
+
+		// lambdas: The collection of lambda handlers used to execute a lambda tree
+		//lambdas = {
+		this.lambdas = {
+			// Get a property from the global scope
+			"str": function (value, scope, args) {
+				value = value + '"' + String(args[0]) + '"';
+				return value;
+			},
+			"num": function (value, scope, args) {
+				value = value + Number(args[0]);
+				return value;
+			},
+			"val": function (value, scope, args) {
+				// TODO: To save space and adressing/lookup time, should content o
+				// the scope be sent as parameters instead of an object ?
+				value = value + "scope." + args[0];
+				return value;
+			},
+			// Get a member property from the current expresion value
+			"get": function (value, scope, args) {
+				return value + "." + args[0];
+			},
+			"call": function (value, scope, args) {
+				return value + "(" + args.join() + ")";
+			},
+			// todo: Find better handler names than arrGet and arrVal 
+			"arrGet": function (value, scope, args) {
+				return value + "[" + args.join() + "]";
+			},
+			"arrVal": function (value, scope, args) {
+				return value + "[" + args.join() + "]";
+			}
+		};
+
+		this.callLambda = function (id, value, scope, args, parentValue) {
+			// todo: figure out what "this" should be
+			return this.lambdas[id].apply(parentValue, [value, scope, args]);
+		};
+
+		/*
+		Start evaluating a chain of lambda operation to output a final value
+		*/
+		this.evalNextLambda = function (lambdaArray, index, value, scope, parentValue) {
+			var lambda,
+				newValue;
+			lambda = lambdaArray[index - 1];
+			// Iterate across the list of arguments for this lambda
+			// If an argument is an array object, it is recursed back into evalNextLambda
+			// Reload into the scope object the cached value of this part of the expression
+			// Execute and return the current lambda expression 
+			newValue = this.callLambda(lambda[0], value, scope, this.evalArguments(lambda[1], value, scope, parentValue), parentValue);
+			// If the lambda chain still has items to evaluate the next item is evaluated
+			if (index < lambdaArray.length) {
+				newValue = this.evalNextLambda(lambdaArray, index + 1, newValue, scope, value);
+			}
+			return newValue;
+		};
+
+		this.evalArguments = function (args, value, scope, parentValue) {
+			var i,
+				arg,
+				argValues = [];
+			if (args) {
+				for (i = 0; i < args.length; i = i + 1) {
+					arg = args[i];
+					// Todo: test performance impact of this type of detection
+					// Todo: See if this procludes the use of arrays as values...
+					if (arg.sort && arg.length > 0) {
+						// Note that when evaluating each arguments, the "value" argument is set to null
+						// because each arg is a fresh expression in itself
+						argValues.push(this.evalNextLambda(arg, 1, "", scope, parentValue));
+					} else {
+						argValues.push(arg);
+					}
+				}
+			}
+			return argValues;
+		};
+
 	};
-
-	lesserEval = function (expression, data) {
-//		console.log("data: ", data);
-//		console.log("expression: ", expression);
-		var lambdaTree = cachedExpressions[expression];
-		if (!lambdaTree) {
-//			console.log(expression);
-			lambdaTree = lambda(expression).lambdas;
-			cachedExpressions[expression] = lambdaTree;
-		}
-//		console.log("lambdaTree");
-//		console.dir(lambdaTree);
-		return run(lambdaTree, data);
-	};
-
 
 /* **********************************************************************
 	Public object and methods
 */
-//	console.log("lambda: ", lambda);
+
+	lambda = function (exp) {
+		var lambdas = new LambdasFactory();
+		return runParsers(exp, 0, "", lambdas);
+	};
+
+	// Start executing the lambda tree starting from the root
+	// Start executing the lambda tree starting from the root
+	run = function (lambdaArray, baseScope) {
+		if (!this.compile) {
+			var runner = new Runner();
+			return runner.evalNextLambda(lambdaArray, 1, null, [baseScope]);
+		} else {
+			var compiler,
+				code,
+				func,
+				value;
+			compiler = new Compiler();
+			code = compiler.evalNextLambda(lambdaArray, 1, "", [baseScope]);
+			//console.log("code: ", code);
+			func = new Function("scope", "return " + code + ";");
+			//console.log("func: ", func.toString());
+			value = func(baseScope);
+			//console.log("value: ", value);
+			return value;
+		}
+	};
+
+	lesserEval = function (expression, data) {
+		// Try to find the expression from the cache before generating its tree
+		var lambdaTree = cachedExpressions[expression];
+		if (!lambdaTree) {
+			// If the expression isn't in the cache, it parses it and then cache it
+			lambdaTree = lambda(expression).lambdas;
+			cachedExpressions[expression] = lambdaTree;
+		}
+		//console.log("lambdaTree");
+		//console.dir(lambdaTree);
+		// Start executing the tree
+		return run(lambdaTree, data);
+	};
+
 	this.lambda = {
+		"compile": false,
 		"eval": lesserEval,
 		"run": run,
 		"lambda": lambda
