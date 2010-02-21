@@ -258,4 +258,12 @@ function lambdaTests() {
 		equals(lambda.eval(expression, data), result, expression + " === " + result);
 	});
 
+	test("Various number notations", function() {
+		equals(lambda.eval("255"), 255, "255");
+		equals(lambda.eval("0xFF"), 0xFF, "0xFF");
+		equals(lambda.eval("10e3"), 10e3, "10e3");
+		equals(lambda.eval("1.0e3"), 1.0e3, "1.0e3");
+		equals(lambda.eval("1.2"), 1.2, "1.2");
+	});
+
 };

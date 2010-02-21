@@ -47,23 +47,27 @@ FEATURES OVERVIEW:
 
 KNOWN LIMITATIONS
 
-	Limitations with planned support in the roadmap:
-		- No support for complex numbers
-		- No support for operators
-		- No support for object literal syntax
+	General limitations with planned support in the roadmap:
 		- Limited exception handling and error messages
 
-	Limitations by design that will never be supported:
+	Specific javascript syntax limitation:
+		- No support for the "+" and "-" characters in exponent notation for numbers (NO TEST YET!)
+		- No support for operators (NO TEST YET!)
+		- No support for object literal syntax (NO TEST YET!)
+
+	Limitations being considered for roadmap:
+		- Only expressions, no actual code sequences
+			Workaround: Function calls can contain any code you wish. With function call chaining
+			such as Query does, something similar to sequences statement could be achieved.  But
+			phylosophically, expressions should only compute values, not run logic.
+
+	Limitations not currently in roamap:
 		- No access to primitive objects such as Math, Function, String, etc.
 			Workaround: Can be provided with scope injection
 		- No support for statements such as function, var, typeof, etc.
 			Workaround: Can be provided by creating function equivalents and scope injection
 		- No support for native regexp syntax
 			Workaround: Can be provided with scope injection
-		- Only expressions, no actual code sequences
-			Workaround: Function calls can contain any code you wish. With function call chaining
-			such as Query does, something similar to sequences statement could be achieved.  But
-			phylosophically, expressions should only compute values, not run logic.
 
 
 RELEASE HISTORY
@@ -92,7 +96,9 @@ RELEASE HISTORY
 ROADMAP
 
 	Release 0.5.1:
-		- Support for more complex numbers
+		- Support for more numbers notations
+		- Added a negative test suite for unsupported features 
+		- Added tests for unsupported number notations
 
 	Release 0.5.2:
 		- Cache the resulting function from compiled expression 
@@ -101,26 +107,19 @@ ROADMAP
 		- Ability to specify prohibited objects (by reference) such as document, eval, window, etc..
 
 	Release 0.7.0:
-		- Support for object literals
-
-	Release 0.8.0:
 		- Support for "precedence-less" arythmetic operators: + -
 
-	Release 0.9.0:
+	Release 0.8.0:
+		- Support for object literals
+
+	Release 0.9.0: OPERATORS
 		- Adequate exception handling and error messages
+		- Support for operators with precedence: / *
+		- Support operators such as : ==, ===, ||, etc...
 
 	Release 1.0.0:
 		- Tests with negative tests results for exceptions handling
 		- More complete test suite and performance benchmarks
-
-	Release 1.1.0:
-		- Ability to reconstruct native JS from lambda tree and compile it
-
-	Release 1.2.0:
-		- Support for operators with precedence: / *
-		- Support operators such as : ==, ===, ||, etc...
-
-	Release 1.3.0:
 		- Support for sub-expression precedence parens: (x + b)
 
 
@@ -288,7 +287,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		// Numeric token parser
 		"num" : function (exp, cursor, token, lambdas) {
 			var i,
-				keepChars = NUMERIC + ".";
+				keepChars = NUMERIC + ".xabcdefXABCDEF";
+			// todo: Support for the "+" and "-" in exponent notation
 			for (i = cursor; i < exp.length; i = i + 1) {
 				if (keepChars.indexOf(exp[i]) < 0) {
 					break;
