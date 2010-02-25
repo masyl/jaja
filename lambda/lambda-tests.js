@@ -59,9 +59,14 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				label: "Basic expressions",
 				tests: [
 					{
-						label: "Some test that must fail",
+						label: "A test that fails with wrong output",
 						code: "uppercase('1234', 'abcde', '4321').substring(3, 10)",
 						value: "FORCED FAILED"
+					},
+					{
+						label: "A test that fails with exception",
+						code: "uppercase)(",
+						value: "EXCEPTION FAIL"
 					},
 					{
 						label: "Two chained function call with multiple parameters",
@@ -215,74 +220,73 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		$outContainer.appendTo($("body"));
 
 		function runTest(test, fixtures) {
-			var result,
+			var result = {
+					compiler: {},
+					interpreter: {}
+				},
+				resultValue,
 				compilerOk,
 				interpreterOk,
 				$outTestItem,
 				note,
-				failedLabel;
+				failedLabel,
+				err = {};
 			lambda.compile = true;
 			try {
-				result = lambda.eval(test.code, fixtures);
-				if (result === test.value) {
-					compilerOk = true;
+				result.compiler.result = lambda.eval(test.code, fixtures);
+				if (result.compiler.result === test.value) {
+					result.compiler.ok = true;
 				} else {
-					compilerOk = false;
+					result.compiler.ok = false;
+					err.message = "Unexpected output from compiled execution";
+					err.description = 'Expected "' + test.value + '" but instead received "' + result.compiler.result + '"';
 				};
 			} catch (e) {
-				compilerOk = false;
+				result.compiler.ok = false;
 				if (!test.unsupported) {
-					console.error(test.label, e);
+					if (console) console.error(test.label, e);
 				}
+				err.message = "Exception occured while evaluating";
+				err.description = e.name + ' - ' + e.message + ' - Refer to console for details';
 			};
 			lambda.compile = false;
 			try {
-				result = lambda.eval(test.code, fixtures);
-				if (result === test.value) {
-					interpreterOk = true;
+				result.interpreter.result = lambda.eval(test.code, fixtures);
+				if (result.interpreter.result === test.value) {
+					result.interpreter.ok = true;
 				} else {
-					interpreterOk = false;
+					result.interpreter.ok = false;
+					err.message = "Unexpected output from interpreted execution";
+					err.description = 'Expected "' + test.value + '" but instead received "' + result.interpreter.result + '"';
 				};
 			} catch (e) {
-				interpreterOk = false;
+				result.interpreter.ok = false;
 				if (!test.unsupported) {
-					console.error(test.label, e);
+					if (console) console.error(test.label, e);
 				}
+				err.message = "Exception occured while evaluating";
+				err.description = e.name + ' - ' + e.message + ' - Refer to console for details';
 			};
-			if (test.unsupported) {
-				failedLabel = "UNSUPPORTED";
-			} else {
-				failedLabel = "FAIL";
-			}
-			note = (test.note) ? "<a href='#' title='" + test.note + "'>?</a>" : "";
-			$outTestItem = $("<tr class='" + ((test.unsupported) ? "isUnsupported " : "") + "'>"
-				+ "<td class='testCell-label'>" + test.label + "</td>"
-				+ "<td class='testCell-code'>" + test.code + "</td>"
-				+ "<td class='testCell-value'>" + test.value + "</td>"
-				+ "<td class='testCell-interpreted "
-				+ ((test.unsupported) ? "isUnsupported " : "")
-				+ ((interpreterOk) ? "isOk " : "isFailed ") + "' >"
-				+ ((interpreterOk) ? "OK " : failedLabel) + "</td>"
-				+ "<td class='testCell-compiled "
-				+ ((test.unsupported) ? "isUnsupported " : "")
-				+ ((compilerOk) ? "isOk " : "isFailed ") + "' >"
-				+ ((compilerOk) ? "OK " : failedLabel) + "</td>"
-				+ "<td class='testCell-note'>" + note + "</td>"
-				+ "</tr>");
 
-			return $outTestItem;
+			return {
+				result: result,
+				err: err
+			};
 		};
 
 		function runModule(module, fixtures) {
 			var $outModuleItem,
 				$outTestList,
 				$outModuleContainer,
+				$testOut,
 				test,
 				tests,
-				$testOut,
+				testResult,
 				countFailed = 0,
 				countSuccess = 0,
-				countUnsupported = 0;
+				countUnsupported = 0,
+				note,
+				failedLabel;
 			tests = module.tests;
 
 			$outTestList = $(".testList tbody", $outModuleContainer);
@@ -294,11 +298,34 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			$("<span>" + tests.length + " tests</span>").appendTo($testCount);
 
 			for (var iTest = 0; iTest < tests.length; iTest++) {
-				// Todo: the runTest method should return an object to render 
-				// instead of returning a rendered output
-				$testOut = runTest(tests[iTest], fixtures);
+				var test = tests[iTest];
+				testResult = runTest(test, fixtures);
+				if (test.unsupported) {
+					failedLabel = "UNSUPPORTED";
+				} else {
+					failedLabel = "FAIL";
+				}
+				note = (test.note) ? "<a href='#' title='" + test.note + "'>?</a>" : "";
+				$testOut = $("<tr class='" + ((test.unsupported) ? "isUnsupported " : "") + "'>"
+					+ "<td class='testCell-label'>" + test.label + "</td>"
+					+ "<td class='testCell-code'>" + test.code + "</td>"
+					+ "<td class='testCell-value'>" + test.value + "</td>"
+					+ "<td class='testCell-interpreted "
+					+ ((test.unsupported) ? "isUnsupported " : "")
+					+ ((testResult.result.interpreter.ok) ? "isOk " : "isFailed ") + "' >"
+					+ ((testResult.result.interpreter.ok) ? "OK " : failedLabel) + "</td>"
+					+ "<td class='testCell-compiled "
+					+ ((test.unsupported) ? "isUnsupported " : "")
+					+ ((testResult.result.compiler.ok) ? "isOk " : "isFailed ") + "' >"
+					+ ((testResult.result.compiler.ok) ? "OK " : failedLabel) + "</td>"
+					+ "<td class='testCell-note'>" + note + "</td>"
+					+ "</tr>");
+
 				$testOut.appendTo($outModuleContainerBody);
-				console.log($(".isUnsupported", $testOut).length, $testOut.html());
+				if (testResult.err.message && !test.unsupported) {
+					$("<tr><td></td><td colspan='4'><div class='errorMessage'>" + testResult.err.message + "<br/>" + testResult.err.description + "</div></td><td></td></tr>").appendTo($outModuleContainerBody);
+				}
+
 				if ($(".isUnsupported", $testOut).length) {
 					countUnsupported++;
 				} else if ($(".isFailed", $testOut).length) {

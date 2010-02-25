@@ -171,7 +171,7 @@ ROADMAP
 X		- Create "negative tests" for unsupported features, and annotate then as "unsupported features"
 x		- Add a "note" for individual tests
 x		- Better layout of test suite
-		- Show exception details when failed
+x		- Show exception details when failed
 		- Ability to view the compiled source code
 x		- Add failed and successful test count in headers and top of suite
 		- Put focus on first failed test
