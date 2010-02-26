@@ -381,15 +381,16 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			}
 		};
 
-		this.callLambda = function (id, value, scope, args, parentValue) {
+		this.callLambda = function (id, value, scope, args) {
 			// todo: figure out what "this" should be
-			return this.lambdas[id].apply(parentValue, [value, scope, args]);
+			//console.log(id);
+			return this.lambdas[id].apply(this, [value, scope, args]);
 		};
 
 		/*
 		Start evaluating a chain of lambda operation to output a final value
 		*/
-		this.evalNextLambda = function (lambdaArray, index, value, scope, parentValue) {
+		this.evalNextLambda = function (lambdaArray, index, value, scope) {
 			var lambda,
 				newValue;
 			lambda = lambdaArray[index - 1];
@@ -397,7 +398,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			// If an argument is an array object, it is recursed back into evalNextLambda
 			// Reload into the scope object the cached value of this part of the expression
 			// Execute and return the current lambda expression 
-			newValue = this.callLambda(lambda[0], value, scope, this.evalArguments(lambda[1], value, scope, parentValue), parentValue);
+			newValue = this.callLambda(lambda[0], value, scope, this.evalArguments(lambda[1], value, scope));
 			// If the lambda chain still has items to evaluate the next item is evaluated
 			if (index < lambdaArray.length) {
 				newValue = this.evalNextLambda(lambdaArray, index + 1, newValue, scope, value);
@@ -459,6 +460,20 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		}
 	};
 
+	compile = function (expression) {
+		var compiler,
+			code,
+			lambdaTree = cachedExpressions[expression];
+		if (!lambdaTree) {
+			// If the expression isn't in the cache, it parses it and then cache it
+			lambdaTree = lambda(expression).lambdas;
+			cachedExpressions[expression] = lambdaTree;
+		}
+		compiler = new Compiler();
+		code = compiler.evalNextLambda(lambdaTree, 1, "");
+		return code;
+	};
+
 	lesserEval = function (expression, data) {
 		// Try to find the expression from the cache before generating its tree
 		var lambdaTree = cachedExpressions[expression];
@@ -474,7 +489,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 	};
 
 	this.lambda = {
-		"compile": false,
+		"useCompiler": false,
+		"compile": compile,
 		"eval": lesserEval,
 		"run": run,
 		"lambda": lambda

@@ -114,8 +114,27 @@ table {
 	font-weight: bold;
 	font-size: 1em;
 	color: #fff;
-	margin: 5px 0px 20px 0px;
+	margin: 5px 0px 5px 0px;
 	padding: 10px 10px 10px 10px;
 	border-radius: 10px;
 	-moz-border-radius: 10px;
 }
+
+
+.compiledCodeRow {
+	display: none;
+}
+.compiledCode {
+	background: #000;
+	font-weight: bold;
+	font-size: 1em;
+	color: #fff;
+	margin: 5px 0px 5px 0px;
+	padding: 10px 10px 10px 10px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+}
+
+
+
+

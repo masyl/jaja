@@ -1,211 +1,23 @@
 /*
+
+Lamba.eval Testing Platform
+
+This library is unit testing tool for the Lambda.eval library. It has been custom built to support the
+exact nature of lambda.eval. It includes :
+	- Tests are "expression based" and written in a declarative format
+	- Test both interpreted and compiled expressions
+	- Exposes compiled code
+	- Differentiate between failures with wrong output vs exceptions
+	- Can be used to document/expose "unsupported" features of the library
+	- Tests can also be considered a kind of documentation or "sample usage"
+	- Provide notes and descriptions for features status
+	- Planned to be used to generate comparative benchmarks between releases and standard "evil eval" and the Function constructor
+
+*/
+/*
 jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, strict: true, newcap: true, immed: true, maxerr: 100
 */
 (function ($) {
-
-	function testSuite() {
-
-		var fixtures = {
-			foo: "bar",
-			getBananas: function getBananas(count) {
-				return count + " bananas!";
-			},
-			animalFactories: {
-				dog: function dog(count) {
-					return count + " dogs!";
-				}
-			},
-			getAnimalFactory: function getAnimalFactory(id) {
-				return data.animalFactories[id];
-			},
-			getAnimalAsString: function getAnimalAsString(id) {
-				return "Animal";
-			},
-			abcde: ["a", "b", "c", "d", "e"],
-			numberMatrix: [
-				["zero zero", "zero one", "zero two", "zero three"],
-				["one zero", "one one", "one two", "one three"],
-				["two zero", "two one", "two two", "two three"],
-				["three zero", "three one", "three two", "three three"]
-			],
-			fruits: {
-				banana: "A banana!",
-				apple: "An apple!",
-				raisin: "A raisin!"
-			},
-			numbers: [
-				{id:1, label:"One"},
-				{id:2, label:"Two"},
-				{id:3, label:"Tree"}
-			],
-			// Concatenate all arguments into a single string and uppercase it.
-			uppercase: function uppercase() {
-				var i, str = "";
-				for (i = 0; i < arguments.length; i++) {
-					str = str + arguments[i];
-				};
-				return str.toUpperCase();
-			},
-			fiveParamConcat: function fiveParamConcat(a, b, c, d, e) {
-				return [a, b, c, d, e].join();
-			},
-			joinArray: function concatArray(arr) {
-				return arr.join();
-			}
-		};
-
-		var testModules = [
-			{
-				label: "Basic expressions",
-				tests: [
-					{
-						label: "A test that fails with wrong output",
-						code: "uppercase('1234', 'abcde', '4321').substring(3, 10)",
-						value: "FORCED FAILED"
-					},
-					{
-						label: "A test that fails with exception",
-						code: "uppercase)(",
-						value: "EXCEPTION FAIL"
-					},
-					{
-						label: "Two chained function call with multiple parameters",
-						code: "uppercase('1234', 'abcde', '4321').substring(3, 10)",
-						value: "4ABCDE4"
-					},
-					{
-						label: "Simple value",
-						code: "foo",
-						value: "bar"
-					},
-					{
-						label: "Simple attribute",
-						code: "fruits.banana",
-						value: "A banana!"
-					},
-					{
-						label: "Function call with a single attribute",
-						code: "uppercase(fruits.banana)",
-						value: "A BANANA!"
-					},
-					{
-						label: "Multiple parameters function call",
-						code: "fiveParamConcat('A1', 'B2', 'C3', 'D4', 'E5')",
-						value: "A1,B2,C3,D4,E5"
-					},
-					{
-						label: "Single and double quotes strings as parameters",
-						code: "fiveParamConcat('A1', \"B2\", 'C3', \"D4\", 'E5')",
-						value: "A1,B2,C3,D4,E5"
-					},
-					{
-						label: "Array as a value",
-						code: "['123', 'abc', '456', 'def'].join()",
-						value: "123,abc,456,def"
-					},
-					{
-						label: "Array as a function parameter",
-						code: "joinArray(['123', 'abc', '456', 'def'])",
-						value: "123,abc,456,def"
-					},
-					{
-						label: "Adressing an array",
-						code: "abcde[2]",
-						value: "c"
-					},
-					{
-						label: "Adressing a string as an array",
-						code: "'vwxyz'[3]",
-						value: "y"
-					},
-					{
-						label: "Adressing a multi-dimension array",
-						code: "numberMatrix[2,2].join(', ')",
-						value: "two zero, two one, two two, two three"
-					},
-					{
-						label: "Adressing a multi-dimension array",
-						code: "numberMatrix[2][2]",
-						value: "two two"
-					}
-				],
-			},
-			{
-				label: "Number notations",
-				tests: [
-					{
-						label: "Integer",
-						code: "255",
-						value: 255
-					},
-					{
-						label: "Octal notation",
-						code: "0xFF",
-						value: 0xFF
-					},
-					{
-						label: "Exponent notation",
-						code: "10e3",
-						value: 10e3
-					},
-					{
-						label: "Exponent notation - neutral",
-						code: "1.0e3",
-						value: 1.0e3
-					},
-					{
-						label: "Exponent notation - negative",
-						code: "1.0e-3",
-						value: 1.0e3,
-						unsupported: true
-					},
-					{
-						label: "Exponent notation - positive",
-						code: "1.0e-3",
-						value: 1.0e3,
-						unsupported: true
-					},
-					{
-						label: "Fractions",
-						code: "1.2",
-						value: 1.2
-					}
-					/*
-					{
-						label: "",
-						code: "",
-						value: ""
-					},
-					*/
-				],
-			},
-			{
-				label: "Miscelaneous unsupported syntax",
-				tests: [
-					{
-						label: "Parenteticals",
-						unsupported: true,
-						code: "(10+4)",
-						value: 14,
-						note: "Support planned for future releases."
-					},
-					{
-						label: "Parenteticals with multiple arguments",
-						unsupported: true,
-						code: "(foo(), 4, 7, 9)",
-						value: 9,
-						note: "Support planned for future releases."
-					}
-				]
-			}
-		];
-
-		return {
-			testModules: testModules,
-			fixtures: fixtures
-		};
-
-	};
 
 	function runTestSuite(testSuite) {
 
@@ -213,7 +25,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			$outTestList,
 			$outResults,
 			testModules = testSuite.testModules,
-			fixtures = testSuite.fixtures;
+			fixtures = testSuite.fixtures,
+			hasFailedAtLeastOnce = false;
 
 		$outContainer = $("<div><h1>Lambda.eval Test Suite</h1><div class='testResults'></div></div>");
 		$outResults = $(".testResults", $outContainer);
@@ -231,7 +44,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				note,
 				failedLabel,
 				err = {};
-			lambda.compile = true;
+			lambda.useCompiler = true;
 			try {
 				result.compiler.result = lambda.eval(test.code, fixtures);
 				if (result.compiler.result === test.value) {
@@ -241,6 +54,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					err.message = "Unexpected output from compiled execution";
 					err.description = 'Expected "' + test.value + '" but instead received "' + result.compiler.result + '"';
 				};
+				err.compiledCode = lambda.compile(test.code);
 			} catch (e) {
 				result.compiler.ok = false;
 				if (!test.unsupported) {
@@ -249,7 +63,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				err.message = "Exception occured while evaluating";
 				err.description = e.name + ' - ' + e.message + ' - Refer to console for details';
 			};
-			lambda.compile = false;
+			lambda.useCompiler = false;
 			try {
 				result.interpreter.result = lambda.eval(test.code, fixtures);
 				if (result.interpreter.result === test.value) {
@@ -286,7 +100,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				countSuccess = 0,
 				countUnsupported = 0,
 				note,
-				failedLabel;
+				failedLabel,
+				hasFailedAnchor;
+
 			tests = module.tests;
 
 			$outTestList = $(".testList tbody", $outModuleContainer);
@@ -297,18 +113,25 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			$testCount.empty();
 			$("<span>" + tests.length + " tests</span>").appendTo($testCount);
 
-			for (var iTest = 0; iTest < tests.length; iTest++) {
-				var test = tests[iTest];
+			$(tests).each(function() {
+				var test = this,
+					$compiledCode;
 				testResult = runTest(test, fixtures);
 				if (test.unsupported) {
 					failedLabel = "UNSUPPORTED";
 				} else {
 					failedLabel = "FAIL";
 				}
+				if (testResult.err.message && !test.unsupported) {
+					hasFailedAnchor = "<a name='isFailed'></a>";
+					hasFailedAtLeastOnce = true;
+				} else {
+					hasFailedAnchor = "";
+				}
 				note = (test.note) ? "<a href='#' title='" + test.note + "'>?</a>" : "";
 				$testOut = $("<tr class='" + ((test.unsupported) ? "isUnsupported " : "") + "'>"
-					+ "<td class='testCell-label'>" + test.label + "</td>"
-					+ "<td class='testCell-code'>" + test.code + "</td>"
+					+ "<td class='testCell-label'>" + hasFailedAnchor + test.label + "</td>"
+					+ "<td class='testCell-code'><a href='#'>" + test.code + "</a></td>"
 					+ "<td class='testCell-value'>" + test.value + "</td>"
 					+ "<td class='testCell-interpreted "
 					+ ((test.unsupported) ? "isUnsupported " : "")
@@ -320,11 +143,24 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					+ ((testResult.result.compiler.ok) ? "OK " : failedLabel) + "</td>"
 					+ "<td class='testCell-note'>" + note + "</td>"
 					+ "</tr>");
-
+				//Todo: Use delegation instead
 				$testOut.appendTo($outModuleContainerBody);
+
+				if (testResult.err.compiledCode) {
+					$compiledCode = $("<tr class='compiledCodeRow'><td></td><td colspan='4'><div class='compiledCode'>Compiled code:<br/>" + testResult.err.compiledCode + "</div></td><td></td></tr>").appendTo($outModuleContainerBody);
+				} else {
+					$compiledCode = $("<tr class='compiledCodeRow'><td></td><td colspan='4'><div class='compiledCode'>Compilation failed.</div></td><td></td></tr>").appendTo($outModuleContainerBody);
+				}
+
 				if (testResult.err.message && !test.unsupported) {
 					$("<tr><td></td><td colspan='4'><div class='errorMessage'>" + testResult.err.message + "<br/>" + testResult.err.description + "</div></td><td></td></tr>").appendTo($outModuleContainerBody);
 				}
+
+				$(".testCell-code a", $testOut).click(function(e){
+				 	console.log($compiledCode, e);
+					e.preventDefault();
+					$compiledCode.toggle();
+				});
 
 				if ($(".isUnsupported", $testOut).length) {
 					countUnsupported++;
@@ -333,24 +169,30 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				} else if ($(".isOk", $testOut).length) {
 					countSuccess++;
 				}
-			};
+			});
 
 			$("<span class='countOk " + ((countSuccess) ? "moreThanOne" : "") + "'>" + countSuccess + " success</span>").appendTo($testCount);
 			$("<span class='countFailed " + ((countFailed) ? "moreThanOne" : "") + "'>" + countFailed + " failed</span>").appendTo($testCount);
 			$("<span class='countUnsupported " + ((countUnsupported) ? "moreThanOne" : "") + "'>" + countUnsupported + " unsupported</span>").appendTo($testCount);
 
+			// Todo: This should return a model, not rendered output
+			// Maybe the test results could be attached directly on the test hierarchy ???
 			return $outModuleContainer;
 		};
 
+		hasFailedAtLeastOnce = false;
 
 		for (var iModule = 0; iModule < testModules.length; iModule++) {
 			var $moduleOut = runModule(testModules[iModule], fixtures);
 			$moduleOut.appendTo($outResults);
 		};
 
+		if (hasFailedAtLeastOnce) {
+			window.location = "#isFailed"
+		}
+
 	};
 
-	window.testSuite = testSuite;
 	window.runTestSuite = runTestSuite;
 
 }(jQuery));

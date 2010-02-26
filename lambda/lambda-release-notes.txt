@@ -134,6 +134,19 @@ KNOWN LIMITATIONS
 
 RELEASE HISTORY
 
+	Release 0.5.3: BETTER TEST SUITE
+		- Create "negative tests" for unsupported features, and annotate then as "unsupported features"
+		- Add a "note" for individual tests
+		- Better layout of test suite
+		- Show exception details when failed
+		- Add failed and successful test count in headers and top of suite
+		- Put focus on first failed test
+		- Ability to view the compiled source code
+		- "Unsupported" test for:
+			- Object literals
+			- Constants: true, false
+			- Arythmetic operators
+
 	Release 0.5.2:
 		- Created a custom testing suite to handle both compiled and interpreted mode.
 		- Created a test UI that can also serve as a sample usage documentation.
@@ -167,57 +180,62 @@ RELEASE HISTORY
 
 ROADMAP
 
-	Release 0.5.3: BETTER TEST SUITE
-X		- Create "negative tests" for unsupported features, and annotate then as "unsupported features"
-x		- Add a "note" for individual tests
-x		- Better layout of test suite
-x		- Show exception details when failed
-		- Ability to view the compiled source code
-x		- Add failed and successful test count in headers and top of suite
-		- Put focus on first failed test
-		- Ability to run/focus on a single test
-
-	Release 0.5.4:
-		- Create an automated performance benchmark from the existing test suite
-
-	Release 0.5.5:
-		- Cache the resulting function from compiled expression 
-
-	Release 0.6.0:
-		- Ability to specify prohibited objects (by reference) such as document, eval, window, etc..
-
-	Release 0.7.0:
-		- Support for sub-expression precedence parens: (x + b)
-
-	Release 0.8.0:
-		- Support for comments (lock and line)
-		- Support for statements (not members of window)
-			var
-			typeof
-			for / for in
-			if else
-			function
-			return
-			break
-			continue
-			while
-			with
-			new
-		- Support for constants (not members of window)
-			void
-			true
-			false
-		- Support for object literals
-
-	Release 0.9.0: OPERATORS
-		Ref:
-			http://en.wikibooks.org/wiki/JavaScript/Operators
-		- Adequate exception handling and error messages
+	Release 0.6.0: ARYTMETIC OPERATORS
 		- Support for arithmetic operator: Addition +
 		- Support for arithmetic operator: Substraction - (and negative/positive numbers notation)
 		- Support for arithmetic operator: Multiplication *
 		- Support for arithmetic operator: Division /
 		- Support for arithmetic operator: Modulus %
+
+	Release 0.7.0: 
+		- Support for object literals
+		- Support for sub-expression precedence parens: (x + b)
+
+	Release 0.8.0:
+		- In the test suite, ability to run/focus on a single test
+		- Support for constants (not members of window)
+			true
+			false
+
+	Release 0.9.0: OPERATORS
+		- Add tests for all operators planned for 0.9.X
+
+	Release 0.9.1: OPERATORS
+		- Support for logical operator: &&
+		- Support for logical operator: ||
+		- Support for logical operator: !
+		- Support for conditionnal operator: ?
+
+	Release 0.9.2: OPERATORS
+		- Support for bitwise operator: &
+		- Support for bitwise operator: |
+		- Support for bitwise operator: ^
+		- Support for bitwise operator: ~
+		- Support for bitwise operator: >>
+		- Support for bitwise operator: <<
+		- Support for bitwise operator: >>>
+		- Support for bitwise operator: *
+		- Support for bitwise operator: *
+
+	Release 0.9.3: OPERATORS
+		- Support for comparison operator: ==
+		- Support for comparison operator: ===
+		- Support for comparison operator: !=
+		- Support for comparison operator: >
+		- Support for comparison operator: <
+		- Support for comparison operator: >=
+		- Support for comparison operator: <=
+
+	Release 1.0.0:
+		- Adequate exception handling and error messages
+		- Externalize the runner and compiler so that they can be optionnal
+		- Tests with negative tests results for exceptions handling
+		- More complete test suite and performance benchmarks
+		- Cache the resulting function from compiled expression 
+		- Create an automated performance benchmark from the existing test suite
+		- Ability to specify prohibited objects (by reference) such as document, eval, window, etc..
+
+	Release 1.1.0:
 		- Support for increment operator: a++ ++a
 		- Support for increment operator: a-- --a
 		- Support for assignment operator: +=
@@ -232,31 +250,28 @@ x		- Add failed and successful test count in headers and top of suite
 		- Support for assignment operator: >>=
 		- Support for assignment operator: <<=
 		- Support for assignment operator: >>>=
-		- Support for comparison operator: ==
-		- Support for comparison operator: ===
-		- Support for comparison operator: !=
-		- Support for comparison operator: >
-		- Support for comparison operator: <
-		- Support for comparison operator: >=
-		- Support for comparison operator: <=
-		- Support for bitwise operator: &
-		- Support for bitwise operator: |
-		- Support for bitwise operator: ^
-		- Support for bitwise operator: ~
-		- Support for bitwise operator: >>
-		- Support for bitwise operator: <<
-		- Support for bitwise operator: >>>
-		- Support for bitwise operator: *
-		- Support for bitwise operator: *
-		- Support for logical operator: &&
-		- Support for logical operator: ||
-		- Support for logical operator: !
-		- Support for conditionnal operator: ?
 
-	Release 1.0.0:
-		- Externalize the runner and compiler so that they can be optionnal
-		- Tests with negative tests results for exceptions handling
-		- More complete test suite and performance benchmarks
+	Release 1.2.0:
+		- Support for comments (lock and line)
+		- Support for statements (not members of window)
+			var
+			typeof
+			for / for in
+			if else
+			function
+			return
+			break
+			continue
+			while
+			with
+			new
+
+
+REFERENCE MATERIAL
+
+	Operators:
+		http://en.wikibooks.org/wiki/JavaScript/Operators
+
 
 
 
