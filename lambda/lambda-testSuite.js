@@ -131,7 +131,7 @@ function testSuite() {
 				{
 					label: "Multiplications",
 					code: "2 + 3",
-					value: 6
+					value: 5
 				},
 				{
 					label: "Division",
@@ -142,6 +142,26 @@ function testSuite() {
 					label: "Modulus",
 					code: "10 % 4",
 					value: 2
+				},
+				{
+					label: "Mixed arythmetic operators",
+					code: "1 + 3 + 4 + 5 * 5 - 4 - 5/4 + 43 - 12/2 % 6",
+					value: 70.75
+				},
+				{
+					label: "Negative number notation",
+					code: " - - 10",
+					value: 10
+				},
+				{
+					label: "Positive number notation",
+					code: " + + 10",
+					value: 10
+				},
+				{
+					label: "Mixed positive/negative number operators",
+					code: " + + - + - - + + - 10",
+					value: 10
 				},
 			],
 		},

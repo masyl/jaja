@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>lambda</title>
+		<script src="libs/jquery-1.4/jquery-1.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="lambda.js" type="text/javascript" charset="utf-8"></script>
+		
+	</head>
+	<body id="lambda">
+		<script type="text/javascript" charset="utf-8">
+			expr = "1 + 3 * 3 + 4 + 5 * 5 - 4 - 5 + 43 - 12 / 2 ";
+			lambda.useCompiler = false;
+			var result = lambda.eval(expr);
+			var ref = eval(expr);
+			var compiledCode = lambda.compile(expr);
+			console.log("compiled code: ", compiledCode);
+			if (result===ref) {
+				console.info("OK!", result);
+			} else {
+				console.error("FAILED! : ", result, " != ", ref);
+			}
+		</script>
+	</body>
+</html>

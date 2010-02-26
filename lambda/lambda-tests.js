@@ -180,6 +180,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			return $outModuleContainer;
 		};
 
+		// Todo: hasFailedAtLeastOnce should not a wide scope var... use "tests" or
+		// a new "testResults" complex object instead ?
 		hasFailedAtLeastOnce = false;
 
 		for (var iModule = 0; iModule < testModules.length; iModule++) {
@@ -189,6 +191,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 
 		if (hasFailedAtLeastOnce) {
 			window.location = "#isFailed"
+		} else {
+			window.location = "#isSuccess"
 		}
 
 	};

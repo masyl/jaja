@@ -134,6 +134,14 @@ KNOWN LIMITATIONS
 
 RELEASE HISTORY
 
+	Release 0.6.0: ARYTMETIC OPERATORS
+		- Support for arithmetic operator: Addition +
+		- Support for arithmetic operator: Substraction -
+		- Support for arithmetic operator: Multiplication *
+		- Support for arithmetic operator: Division /
+		- Support for arithmetic operator: Modulus %
+		- Negative and positive numbers notation
+
 	Release 0.5.3: BETTER TEST SUITE
 		- Create "negative tests" for unsupported features, and annotate then as "unsupported features"
 		- Add a "note" for individual tests
@@ -179,13 +187,6 @@ RELEASE HISTORY
 
 
 ROADMAP
-
-	Release 0.6.0: ARYTMETIC OPERATORS
-		- Support for arithmetic operator: Addition +
-		- Support for arithmetic operator: Substraction - (and negative/positive numbers notation)
-		- Support for arithmetic operator: Multiplication *
-		- Support for arithmetic operator: Division /
-		- Support for arithmetic operator: Modulus %
 
 	Release 0.7.0: 
 		- Support for object literals

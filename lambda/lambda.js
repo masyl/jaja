@@ -164,6 +164,34 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			}
 			lambdas.addLambda("num", [exp.substring(cursor, i)]);
 			return i - 1;
+		},
+		// Operator parser
+		"oper" : function (exp, cursor, token, lambdas) {
+			// Todo: As operators support grows, this sequence of if will
+			// need to be replaced by a hash map pattern
+			var chr = exp[cursor];
+			if (chr==="+") {
+				lambdas.addLambda("oper-add", []);
+				lambdas.intoArgs();
+				lambdas.newArg();
+			} else if (chr==="-") {
+				lambdas.addLambda("oper-substract", []);
+				lambdas.intoArgs();
+				lambdas.newArg();
+			} else if (chr==="*") {
+				lambdas.addLambda("oper-multiply", []);
+				lambdas.intoArgs();
+				lambdas.newArg();
+			} else if (chr==="/") {
+				lambdas.addLambda("oper-divide", []);
+				lambdas.intoArgs();
+				lambdas.newArg();
+			} else if (chr==="%") {
+				lambdas.addLambda("oper-modulo", []);
+				lambdas.intoArgs();
+				lambdas.newArg();
+			};
+			return cursor;
 		}
 	};
 
@@ -199,10 +227,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		["(,)", parsers["args"]],
 		["[,]", parsers["arr"]],
 		["'\"", parsers["str"]],
+		["+-/*%?&|^~><", parsers["oper"]],
 		[NUMERIC, parsers["num"]],
 	]);
-
-
 
 
 /* **********************************************************************
@@ -254,6 +281,21 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		// lambdas: The collection of lambda handlers used to execute a lambda tree
 		//lambdas = {
 		this.lambdas = {
+			"oper-add": function (value, scope, args) {
+				return value + args[0];
+			},
+			"oper-substract": function (value, scope, args) {
+				return value - args[0];
+			},
+			"oper-divide": function (value, scope, args) {
+				return value / args[0];
+			},
+			"oper-multiply": function (value, scope, args) {
+				return value * args[0];
+			},
+			"oper-modulo": function (value, scope, args) {
+				return value % args[0];
+			},
 			// Get a property from the global scope
 			"str": function (value, scope, args) {
 				return String(args[0]);
@@ -350,6 +392,26 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		// lambdas: The collection of lambda handlers used to execute a lambda tree
 		//lambdas = {
 		this.lambdas = {
+			"oper-add": function (value, scope, args) {
+				value = value + ' + ' + String(args[0]);
+				return value;
+			},
+			"oper-substract": function (value, scope, args) {
+				value = value + ' - ' + String(args[0]);
+				return value;
+			},
+			"oper-multiply": function (value, scope, args) {
+				value = value + ' * ' + String(args[0]);
+				return value;
+			},
+			"oper-divide": function (value, scope, args) {
+				value = value + ' / ' + String(args[0]);
+				return value;
+			},
+			"oper-modulo": function (value, scope, args) {
+				value = value + ' % ' + String(args[0]);
+				return value;
+			},
 			// Get a property from the global scope
 			"str": function (value, scope, args) {
 				value = value + '"' + String(args[0]) + '"';
@@ -383,7 +445,6 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 
 		this.callLambda = function (id, value, scope, args) {
 			// todo: figure out what "this" should be
-			//console.log(id);
 			return this.lambdas[id].apply(this, [value, scope, args]);
 		};
 
