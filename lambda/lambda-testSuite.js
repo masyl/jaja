@@ -242,15 +242,13 @@ function testSuite() {
 				},
 				{
 					label: "Parenteticals",
-					unsupported: true,
 					code: "(10+4)",
 					value: 14,
 					note: "Support planned for future releases."
 				},
 				{
 					label: "Parenteticals with multiple arguments",
-					unsupported: true,
-					code: "(foo(), 4, 7, 9)",
+					code: "(3 + 4, 4, 7, 9)",
 					value: 9,
 					note: "Support planned for future releases."
 				}

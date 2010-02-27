@@ -50,9 +50,7 @@ KNOWN LIMITATIONS
 		- Limited exception handling and error messages
 
 	Specific javascript syntax limitation:
-		- No support for the "+" and "-" characters in exponent notation for numbers (NO TEST YET!)
-		- No support for operators (NO TEST YET!)
-		- No support for object literal syntax (NO TEST YET!)
+		Most unsupported expression syntax not supported can be seen in the test suite, flagged in yellow.
 
 	Limitations being considered for roadmap:
 		- Only expressions, no actual code sequences
@@ -134,6 +132,11 @@ KNOWN LIMITATIONS
 
 RELEASE HISTORY
 
+	Release 0.7.0: PARENTHETICALS
+		- Support for nested parentheticals: (x + b)
+		- Internal changes to the lambda factory: support stack rollback when closing lambda sequences
+		- Internal changes to the parser: Is now recursive and support nested sequences
+
 	Release 0.6.0: ARYTMETIC OPERATORS
 		- Support for arithmetic operator: Addition +
 		- Support for arithmetic operator: Substraction -
@@ -188,9 +191,11 @@ RELEASE HISTORY
 
 ROADMAP
 
-	Release 0.7.0: 
+	Release 0.7.1: STRUCTURAL SYNTAX
 		- Support for object literals
-		- Support for sub-expression precedence parens: (x + b)
+		- More tests for nested parens
+		- More tests for nested arrays
+		- More tests for complex combined expressions
 
 	Release 0.8.0:
 		- In the test suite, ability to run/focus on a single test

@@ -4,17 +4,19 @@
 	Read "lambda-release-notes.txt" for more details.
 
 */
-/*
 // This little helper routine is usefull when strugling with
 // loops caused by broken recursive routines
+window.maxLoop = 100;
 function loopOk() {
-	window.maxLoop = window.maxLoop-- || 100;
-	if (!window.maxLoop) {
+//	console.log("maxLoop: ", window.maxLoop);
+	window.maxLoop = window.maxLoop - 1;
+	if (window.maxLoop===0) {
 		var e = new Error("Too many loops!")
 		console.error(e);
 		throw e;
-	};
+	}
 }
+/*
 */
 "use strict";
 /*
@@ -56,28 +58,45 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 	parsers depending on which char is at the last index. Each parsers then modifies the
 	lambda stack.
 	*/
-	function runParsers(exp, cursor, token, lambdas) {
+	function runParsers(exp) {
+		var cursor,
+			lambdas;
+		lambdas = new LambdasFactory();
+		lambdas.addLambda("root", []);
+		lambdas.intoArgs();
+		lambdas.newArg();
+		cursor = 0;
+		cursor = parseNext(exp, cursor, lambdas, "");
+		return lambdas;
+	};
+	// Note: exceptions param is used for breaking out of recursion in arguments based lamdas such as parens and arrays
+	function parseNext(exp, cursor, lambdas, exceptions) {
 		var i,
 			nextParser,
 			currentChar;
-		for (i = 0; i < exp.length; i = i + 1) {
+		for (i = cursor; i < exp.length; i = i + 1) {
+//			loopOk();
+//			console.log("cursor: " + i)
 			nextParser = parsers.empty;
 			currentChar = exp[i];
-			nextParser = parserLookup[currentChar];
-			if (nextParser) {
-				i = nextParser.handler(exp, i, token, lambdas);
-			}; // Otherwise, character is simply ignored
+			if (exceptions.indexOf(currentChar) >= 0) {
+				return i;
+			} else {
+				nextParser = parserLookup[currentChar];
+				if (nextParser) {
+					i = nextParser.handler(exp, i, lambdas);
+				}; // Otherwise, character is simply ignored
+			}
 		}
-		return lambdas;
+		return i;
 	};
 
 	parsers = {
 		// root parser
-		empty: function (exp, cursor, token, lambdas) {
+		empty: function (exp, cursor, lambdas) {
 			return cursor;
 		},
-		// variable token parser
-		"var" : function (exp, cursor, token, lambdas) {
+		"var" : function (exp, cursor, lambdas) {
 			//console.log.apply(this, arguments);
 			var i,
 				inChars = "_" + ALPHA,
@@ -90,8 +109,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			lambdas.addLambda("val", [exp.substring(cursor, i)]);
 			return i - 1;
 		},
-		// member token parser
-		"get" : function (exp, cursor, token, lambdas) {
+		"get" : function (exp, cursor, lambdas) {
 			//console.log.apply(this, arguments);
 			var i,
 				keepChars = "._" + ALPHA;
@@ -101,46 +119,58 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				}
 			}
 			lambdas.addLambda("get", [exp.substring(cursor + 1, i)]);
+//			console.log("lambda: get");
 			return i - 1;
 		},
-		"args" : function (exp, cursor, token, lambdas) {
-			var char = exp[cursor];
-			//console.log("args: ", char);
-			if (char === "(") {
-				lambdas.addLambda("call", []);
-				lambdas.intoArgs();
-				lambdas.newArg();
-				//parsers.root(exp, cursor+1, token, lambdas)
-			} else if (char === ")") {
-				lambdas.exitArgs();
-				//parsers.root(exp, cursor+1, token, lambdas)
-			} else if (char === ",") {
-				lambdas.newArg();
-			}
-			return cursor;
-		},
-		"arr" : function (exp, cursor, token, lambdas) {
-			var char = exp[cursor];
-			if (char === "[") {
-				// Check if this new lambda is the first in the current lambda sequence
-				if (lambdas.latestSequence.length) {
-					// Array syntax as a value
-					lambdas.addLambda("arrGet", []);
-				} else {
-					// Array syntax as a getter
-					lambdas.addLambda("arrVal", []);
+		"parens" : function (exp, cursor, lambdas) {
+			var sequence,
+				char;
+			while (cursor < exp.length) {
+				char = exp[cursor];
+				if (char === "(") {
+					// Check if this new lambda is the first in the current lambda sequence
+					if (lambdas.latestSequence.length) {
+						lambdas.addLambda("call", []);
+					} else {
+						lambdas.addLambda("sub", []);
+					}
+					sequence = lambdas.intoArgs();
+					lambdas.newArg();
+				} else if (char === ",") {
+					lambdas.newArg(sequence);
+				} else if (char === ")") {
+					lambdas.exitArgs(sequence);
 				}
-				lambdas.intoArgs();
-				lambdas.newArg();
-			} else if (char === "]") {
-				lambdas.exitArgs();
-			} else if (char === ",") {
-				lambdas.newArg();
+				cursor = cursor + 1;
+				cursor = parseNext(exp, cursor, lambdas, ",)");
 			}
 			return cursor;
 		},
-		// String token parser
-		"str" : function (exp, cursor, token, lambdas) {
+		"arr" : function (exp, cursor, lambdas) {
+			var sequence,
+				char;
+			while (cursor < exp.length) {
+				char = exp[cursor];
+				if (char === "[") {
+					// Check if this new lambda is the first in the current lambda sequence
+					if (lambdas.latestSequence.length) {
+						lambdas.addLambda("arrGet", []);
+					} else {
+						lambdas.addLambda("arrVal", []);
+					}
+					sequence = lambdas.intoArgs();
+					lambdas.newArg();
+				} else if (char === ",") {
+					lambdas.newArg(sequence);
+				} else if (char === "]") {
+					lambdas.exitArgs(sequence);
+				}
+				cursor = cursor + 1;
+				cursor = parseNext(exp, cursor, lambdas, ",]")
+			}
+			return cursor;
+		},
+		"str" : function (exp, cursor, lambdas) {
 			var i,
 				// If match the double or single quote
 				outChar = exp[cursor];
@@ -152,11 +182,10 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			lambdas.addLambda("str", [exp.substring(cursor + 1, i)]);
 			return i;
 		},
-		// Numeric token parser
-		"num" : function (exp, cursor, token, lambdas) {
+		// Numeric parser
+		"num" : function (exp, cursor, lambdas) {
 			var i,
 				keepChars = NUMERIC + ".xabcdefXABCDEF";
-			// todo: Support for the "+" and "-" in exponent notation
 			for (i = cursor; i < exp.length; i = i + 1) {
 				if (keepChars.indexOf(exp[i]) < 0) {
 					break;
@@ -166,31 +195,23 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			return i - 1;
 		},
 		// Operator parser
-		"oper" : function (exp, cursor, token, lambdas) {
+		"oper" : function (exp, cursor, lambdas) {
 			// Todo: As operators support grows, this sequence of if will
 			// need to be replaced by a hash map pattern
 			var chr = exp[cursor];
 			if (chr==="+") {
 				lambdas.addLambda("oper-add", []);
-				lambdas.intoArgs();
-				lambdas.newArg();
 			} else if (chr==="-") {
 				lambdas.addLambda("oper-substract", []);
-				lambdas.intoArgs();
-				lambdas.newArg();
 			} else if (chr==="*") {
 				lambdas.addLambda("oper-multiply", []);
-				lambdas.intoArgs();
-				lambdas.newArg();
 			} else if (chr==="/") {
 				lambdas.addLambda("oper-divide", []);
-				lambdas.intoArgs();
-				lambdas.newArg();
 			} else if (chr==="%") {
 				lambdas.addLambda("oper-modulo", []);
-				lambdas.intoArgs();
-				lambdas.newArg();
 			};
+			lambdas.intoArgs();
+			lambdas.newArg();
 			return cursor;
 		}
 	};
@@ -224,8 +245,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 	registerParsers([
 		["_"+ALPHA, parsers["var"]],
 		[".", parsers["get"]],
-		["(,)", parsers["args"]],
-		["[,]", parsers["arr"]],
+		["(", parsers["parens"]],
+		["[", parsers["arr"]],
 		["'\"", parsers["str"]],
 		["+-/*%?&|^~><", parsers["oper"]],
 		[NUMERIC, parsers["num"]],
@@ -246,29 +267,54 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		this.latestLambda = null;
 		this.latestSequence = this.lambdas;
 		this.stack = [this.latestSequence];
-		this.addLambda = function (id, args) {
+ 		this.addLambda = function (id, args) {
 			// Create a new lambda
 			this.latestLambda = [id, args];
 			//console.log("addLambda stack: ", this.stack);
 			//console.log("addLambda lambdas: ", this.lambdas);
 			// Add the new lambda to the current sequence
+//			console.log("addLambda to latest this.latestSequence: ", this.latestLambda, " - ", this.latestSequence);
 			this.latestSequence.push(this.latestLambda);
 		};
 		this.intoArgs = function () {
 			//console.log("INTO ARGS: ", this.latestLambda);
 			this.latestSequence = this.latestLambda[1];
 			this.stack.push(this.latestSequence);
+			return this.latestSequence;
 		};
-		this.newArg = function () {
-			//this.stack.pop();
-			var parentSequence = this.stack[this.stack.length-1]
+		this.newArg = function (sequence) {
+			var last;
+			if (sequence) {
+				last = this.stack[this.stack.length-1];
+				while (last && last !== sequence) {
+//					console.log("pop seq:", this.stack[this.stack.length-1]);
+					this.stack.pop();
+					last = this.stack[this.stack.length-1];
+				}
+			}
+			var parentSequence = this.stack[this.stack.length-1];
 			this.latestSequence = [];
 			parentSequence.push(this.latestSequence);
 			//console.log("parentSequence", parentSequence);
 		};
-		this.exitArgs = function () {
+		this.exitArgs = function (sequence) {
+			// Roll back stack to the reference sequence
+			var last;
+			if (sequence) {
+				last = this.stack[this.stack.length-1];
+				while (last && last !== sequence) {
+//					console.log("pop seq:", this.stack[this.stack.length-1]);
+					this.stack.pop();
+					last = this.stack[this.stack.length-1];
+				}
+			}
+			// Pop the found sequence out of the stack
 			this.stack.pop();
-			this.latestSequence = this.stack[this.stack.length-1]
+
+//			console.log("pop", this.stack[this.stack.length-1]);
+			this.latestSequence = this.stack[this.stack.length-1][0];
+
+//			this.latestSequence = this.stack[this.stack.length-1]; // Works for get, not for 
 		};
 	};
 
@@ -281,6 +327,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		// lambdas: The collection of lambda handlers used to execute a lambda tree
 		//lambdas = {
 		this.lambdas = {
+			"root": function (value, scope, args) {
+				return args[0];
+			},
 			"oper-add": function (value, scope, args) {
 				return value + args[0];
 			},
@@ -315,23 +364,24 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			"call": function (value, scope, args) {
 				return value.apply(this, args);
 			},
+			"sub": function (value, scope, args) {
+				//console.log("sub lambda", value, scope, args);
+				return args[args.length-1];
+			},
 			// todo: Find better handler names than arrGet and arrVal 
 			"arrGet": function (value, scope, args) {
-				var val;
-				val = value;
-				val	= val[args[args.length-1]];
-				return val;
+				return value[args[args.length-1]];
 			},
 			"arrVal": function (value, scope, args) {
 				return new Array(args);
 			}
 		};
-	
+
 		this.callLambda = function (id, value, scope, args, parentValue) {
-			// todo: figure out what "this" should be
+//			console.log("callLambda: ", id);
 			return this.lambdas[id].apply(parentValue, [value, scope, args]);
 		};
-	
+
 		/*
 		Start evaluating a chain of lambda operation to output a final value
 		*/
@@ -392,6 +442,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		// lambdas: The collection of lambda handlers used to execute a lambda tree
 		//lambdas = {
 		this.lambdas = {
+			"root": function (value, scope, args) {
+				return args[0];
+			},
 			"oper-add": function (value, scope, args) {
 				value = value + ' + ' + String(args[0]);
 				return value;
@@ -432,19 +485,22 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				return value + "." + args[0];
 			},
 			"call": function (value, scope, args) {
-				return value + "(" + args.join() + ")";
+				return value + "(" + args.join(", ") + ")";
+			},
+			"sub": function (value, scope, args) {
+				return value + "(" + args.join(", ") + ")";
 			},
 			// todo: Find better handler names than arrGet and arrVal 
 			"arrGet": function (value, scope, args) {
-				return value + "[" + args.join() + "]";
+				return value + "[" + args.join(", ") + "]";
 			},
 			"arrVal": function (value, scope, args) {
-				return value + "[" + args.join() + "]";
+				return value + "[" + args.join(", ") + "]";
 			}
 		};
 
 		this.callLambda = function (id, value, scope, args) {
-			// todo: figure out what "this" should be
+//			console.log("callLambda: ", id);
 			return this.lambdas[id].apply(this, [value, scope, args]);
 		};
 
@@ -459,6 +515,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			// If an argument is an array object, it is recursed back into evalNextLambda
 			// Reload into the scope object the cached value of this part of the expression
 			// Execute and return the current lambda expression 
+//			console.log("lambda: ", lambdaArray);
+//			console.log("lambda: ", lambdaArray, lambda, index);
+//			console.dir(lambda);
 			newValue = this.callLambda(lambda[0], value, scope, this.evalArguments(lambda[1], value, scope));
 			// If the lambda chain still has items to evaluate the next item is evaluated
 			if (index < lambdaArray.length) {
@@ -495,8 +554,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 */
 
 	lambda = function (exp) {
-		var lambdas = new LambdasFactory();
-		return runParsers(exp, 0, "", lambdas);
+		return runParsers(exp);
 	};
 
 	// Start executing the lambda tree starting from the root
@@ -530,6 +588,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			lambdaTree = lambda(expression).lambdas;
 			cachedExpressions[expression] = lambdaTree;
 		}
+//		console.log("lambdaTree");
+//		console.dir(lambdaTree);
 		compiler = new Compiler();
 		code = compiler.evalNextLambda(lambdaTree, 1, "");
 		return code;
@@ -543,8 +603,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			lambdaTree = lambda(expression).lambdas;
 			cachedExpressions[expression] = lambdaTree;
 		}
-		//console.log("lambdaTree");
-		//console.dir(lambdaTree);
+//		console.log("lambdaTree");
+//		console.dir(lambdaTree);
 		// Start executing the tree
 		return run(lambdaTree, data);
 	};
