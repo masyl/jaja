@@ -197,7 +197,7 @@ function testSuite() {
 				},
 				{
 					label: "Exponent notation - positive",
-					code: "1.0e-3",
+					code: "1.0e+3",
 					value: 1.0e3,
 					unsupported: true,
 					note: "Support planned for future releases."
@@ -217,7 +217,31 @@ function testSuite() {
 			],
 		},
 		{
-			label: "Miscelaneous unsupported syntax",
+			label: "Structural syntax",
+			tests: [
+				{
+					label: "Parenteticals",
+					code: "(10+4)",
+					value: 14,
+					note: "Support planned for future releases."
+				},
+				{
+					label: "Parenteticals with multiple arguments",
+					code: "(3 + 4, 4, 7, 9)",
+					value: 9,
+					note: "Support planned for future releases."
+				},
+				{
+					label: "Object literals",
+					unsupported: true,
+					code: "{a:1, b:2, c:3}",
+					value: {a:1, b:2, c:3},
+					note: "Support planned for future releases."
+				},
+			],
+		},
+		{
+			label: "Other unsupported syntax",
 			tests: [
 				{
 					label: "Constant: true",
@@ -233,25 +257,6 @@ function testSuite() {
 					value: false,
 					note: "Support planned for future releases."
 				},
-				{
-					label: "Object literals",
-					unsupported: true,
-					code: "{a:1, b:2, c:3}",
-					value: {a:1, b:2, c:3},
-					note: "Support planned for future releases."
-				},
-				{
-					label: "Parenteticals",
-					code: "(10+4)",
-					value: 14,
-					note: "Support planned for future releases."
-				},
-				{
-					label: "Parenteticals with multiple arguments",
-					code: "(3 + 4, 4, 7, 9)",
-					value: 9,
-					note: "Support planned for future releases."
-				}
 			]
 		}
 	];

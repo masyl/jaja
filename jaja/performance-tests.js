@@ -1,7 +1,7 @@
-function lambdaTests() {
+function jajaTests() {
 
-	var lambda = window.lambda;
-	lambda.compile = true;
+	var jaja = window.jaja;
+	jaja.compile = true;
 
 	var data = {
 		foo: "bar",
@@ -38,14 +38,14 @@ function lambdaTests() {
 
 	var count = 1000;
 
-	test(count + " bananas with lambda.eval", function() {
+	test(count + " bananas with jaja.eval", function() {
 		console.log("Performance comparisons without expression caching");
 		var val;
-		console.time(count + " - bananas with lambda.eval");
+		console.time(count + " - bananas with jaja.eval");
 		for (var i=0; i <= count; i = i + 1) {
-			val = lambda.eval("uppercase('"+i+" Bananas')" , data);
+			val = jaja.eval("uppercase('"+i+" Bananas')" , data);
 		}
-		console.timeEnd(count + " - bananas with lambda.eval");
+		console.timeEnd(count + " - bananas with jaja.eval");
 		equals(val, count + " BANANAS", "uppercase banana!");
 	});
 
@@ -63,14 +63,14 @@ function lambdaTests() {
 	module("Performance comparisons with expression caching");
 	var count = 1000;
 
-	test(count + " bananas with lambda.eval", function() {
+	test(count + " bananas with jaja.eval", function() {
 		console.log("Performance comparisons with expression caching");
 		var val;
-		console.time(count + " - bananas with lambda.eval");
+		console.time(count + " - bananas with jaja.eval");
 		for (var i=0; i <= count; i = i + 1) {
-			val = lambda.eval("uppercase(fruits.banana)" , data);
+			val = jaja.eval("uppercase(fruits.banana)" , data);
 		}
-		console.timeEnd(count + " - bananas with lambda.eval");
+		console.timeEnd(count + " - bananas with jaja.eval");
 		equals(val, "A BANANA!", "uppercase banana!");
 	});
 

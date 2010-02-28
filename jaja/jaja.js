@@ -1,7 +1,7 @@
 /*
-	lambda.eval v0.5.0
+	jaja v0.7.0
 
-	Read "lambda-release-notes.txt" for more details.
+	Read "release-notes.txt" for more details.
 
 */
 // This little helper routine is usefull when strugling with
@@ -31,7 +31,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		cachedExpressions = {}, // Collection of expressions previously cached
 		parserCollection = {}, // Collection of registered parsers
 		parserLookup = {}, // A lookup table between chars and registered parsers
-		lambda, // function to create a lambda structure from an expressino
+		jaja, // function to create a lambda structure from an expressino
 		run, // Runs a lambda sequence within a provided scope to obtain a value
 		lesserEval; // Evaluate an textual expression within a provided scope to obtain a value
 
@@ -553,7 +553,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 	Public object and methods
 */
 
-	lambda = function (exp) {
+	jaja = function (exp) {
 		return runParsers(exp);
 	};
 
@@ -585,7 +585,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			lambdaTree = cachedExpressions[expression];
 		if (!lambdaTree) {
 			// If the expression isn't in the cache, it parses it and then cache it
-			lambdaTree = lambda(expression).lambdas;
+			lambdaTree = jaja(expression).lambdas;
 			cachedExpressions[expression] = lambdaTree;
 		}
 //		console.log("lambdaTree");
@@ -595,12 +595,12 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		return code;
 	};
 
-	lesserEval = function (expression, data) {
+	jajaEval = function (expression, data) {
 		// Try to find the expression from the cache before generating its tree
 		var lambdaTree = cachedExpressions[expression];
 		if (!lambdaTree) {
 			// If the expression isn't in the cache, it parses it and then cache it
-			lambdaTree = lambda(expression).lambdas;
+			lambdaTree = jaja(expression).lambdas;
 			cachedExpressions[expression] = lambdaTree;
 		}
 //		console.log("lambdaTree");
@@ -609,12 +609,11 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		return run(lambdaTree, data);
 	};
 
-	this.lambda = {
+	this.jaja = {
 		"useCompiler": false,
 		"compile": compile,
-		"eval": lesserEval,
-		"run": run,
-		"lambda": lambda
+		"eval": jajaEval,
+		"run": run
 	};
 
 }());

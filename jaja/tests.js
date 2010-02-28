@@ -1,9 +1,9 @@
 /*
 
-Lamba.eval Testing Platform
+JaJa Testing Tools
 
-This library is unit testing tool for the Lambda.eval library. It has been custom built to support the
-exact nature of lambda.eval. It includes :
+This library is unit testing tool for the JaJa library. It has been custom built to support the
+exact nature of JaJa. It includes :
 	- Tests are "expression based" and written in a declarative format
 	- Test both interpreted and compiled expressions
 	- Exposes compiled code
@@ -28,9 +28,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			fixtures = testSuite.fixtures,
 			hasFailedAtLeastOnce = false;
 
-		$outContainer = $("<div><h1>Lambda.eval Test Suite</h1><div class='testResults'></div></div>");
+		$outContainer = $("<div><div class='testResults'></div></div>");
 		$outResults = $(".testResults", $outContainer);
-		$outContainer.appendTo($("body"));
+		$outContainer.appendTo($("#testSuiteReport"));
 
 		function runTest(test, fixtures) {
 			var result = {
@@ -44,9 +44,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				note,
 				failedLabel,
 				err = {};
-			lambda.useCompiler = true;
+			jaja.useCompiler = true;
 			try {
-				result.compiler.result = lambda.eval(test.code, fixtures);
+				result.compiler.result = jaja.eval(test.code, fixtures);
 				if (result.compiler.result === test.value) {
 					result.compiler.ok = true;
 				} else {
@@ -54,7 +54,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					err.message = "Unexpected output from compiled execution";
 					err.description = 'Expected "' + test.value + '" but instead received "' + result.compiler.result + '"';
 				};
-				err.compiledCode = lambda.compile(test.code);
+				err.compiledCode = jaja.compile(test.code);
 			} catch (e) {
 				result.compiler.ok = false;
 				if (!test.unsupported) {
@@ -63,9 +63,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				err.message = "Exception occured while evaluating";
 				err.description = e.name + ' - ' + e.message + ' - Refer to console for details';
 			};
-			lambda.useCompiler = false;
+			jaja.useCompiler = false;
 			try {
-				result.interpreter.result = lambda.eval(test.code, fixtures);
+				result.interpreter.result = jaja.eval(test.code, fixtures);
 				if (result.interpreter.result === test.value) {
 					result.interpreter.ok = true;
 				} else {
@@ -106,7 +106,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			tests = module.tests;
 
 			$outTestList = $(".testList tbody", $outModuleContainer);
-			$outModuleContainer = $("'<div><h2><span class='label'>" + module.label + "</span><span class='testCount'></span></h2><table class='testList'><thead><tr><td>Test</td><td>Expression</td><td>Result</td><td>Interpreted</td><td>Compiled</td><td></td></tr><thead><tbody></tbody></table></div>");
+			$outModuleContainer = $("'<div><h2><span class='label'>" + module.label + "</span><span class='testCount'></span></h2><table class='testList'><thead><tr><td></td><td style='width: 75%' >Test</td><td>Result</td><td>Interpreted</td><td>Compiled</td></tr><thead><tbody></tbody></table></div>");
 			$testCount = $(".testCount", $outModuleContainer);
 			$outModuleContainerBody = $("tbody", $outModuleContainer);
 
@@ -130,8 +130,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				}
 				note = (test.note) ? "<a href='#' title='" + test.note + "'>?</a>" : "";
 				$testOut = $("<tr class='" + ((test.unsupported) ? "isUnsupported " : "") + "'>"
-					+ "<td class='testCell-label'>" + hasFailedAnchor + test.label + "</td>"
-					+ "<td class='testCell-code'><a href='#'>" + test.code + "</a></td>"
+					+ "<td class='testCell-note'>" + note + "</td>"
+					+ "<td class='testCell-label'>" + hasFailedAnchor + test.label + ":"
+					+ "<br/><a href='#'>" + test.code + "</a></td>"
 					+ "<td class='testCell-value'>" + test.value + "</td>"
 					+ "<td class='testCell-interpreted "
 					+ ((test.unsupported) ? "isUnsupported " : "")
@@ -141,7 +142,6 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					+ ((test.unsupported) ? "isUnsupported " : "")
 					+ ((testResult.result.compiler.ok) ? "isOk " : "isFailed ") + "' >"
 					+ ((testResult.result.compiler.ok) ? "OK " : failedLabel) + "</td>"
-					+ "<td class='testCell-note'>" + note + "</td>"
 					+ "</tr>");
 				//Todo: Use delegation instead
 				$testOut.appendTo($outModuleContainerBody);

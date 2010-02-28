@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+		<title>JaJa</title>
+		<link href="libs/tripoli/tripoli.simple.css" type="text/css" rel="stylesheet"> 
+		<link href="libs/tripoli/plugins/tripoli.negative.css" type="text/css" rel="stylesheet">
+		<link href="libs/tripoli/plugins/tripoli.type.css" type="text/css" rel="stylesheet">
+		<link href="libs/tripoli/plugins/tripoli.visual.css" type="text/css" rel="stylesheet">
+		<link href="libs/tripoli/plugins/tripoli.layout.css" type="text/css" rel="stylesheet">
+		<!--[if IE]><link rel="stylesheet" type="text/css" href="tripoli.simple.ie.css"><![endif]-->
+	</head>
+	<body class="l1 wide">
+		<div id="container">
+			<div id="header">
+				<div class="content">
+					<h1>JaJa library- Javascript In Javascript</h1>
+					<h2>Release Notes</h2>
+				</div>
+			</div>
+
+			<div id="primary">
+				<div class="content">
+<pre style="white-space: pre-line; color: #ccc; font-size: 1.2em;">
+Release 0.7.1: Library renamed to JaJa and homepage
+- Renamed the library from Lambda to JaJa in all sources and documentation 
+- Created a simple homepage
+- Moved documentation and release notes to HTML
+
+Release 0.7.0: PARENTHETICALS
+- Support for nested parentheticals: (x + b)
+- Internal changes to the lambda factory: support stack rollback when closing lambda sequences
+- Internal changes to the parser: Is now recursive and support nested sequences
+
+Release 0.6.0: ARYTMETIC OPERATORS
+- Support for arithmetic operator: Addition +
+- Support for arithmetic operator: Substraction -
+- Support for arithmetic operator: Multiplication *
+- Support for arithmetic operator: Division /
+- Support for arithmetic operator: Modulus %
+- Negative and positive numbers notation
+
+Release 0.5.3: BETTER TEST SUITE
+- Create "negative tests" for unsupported features, and annotate then as "unsupported features"
+- Add a "note" for individual tests
+- Better layout of test suite
+- Show exception details when failed
+- Add failed and successful test count in headers and top of suite
+- Put focus on first failed test
+- Ability to view the compiled source code
+- "Unsupported" test for:
+	- Object literals
+	- Constants: true, false
+	- Arythmetic operators
+
+Release 0.5.2:
+- Created a custom testing suite to handle both compiled and interpreted mode.
+- Created a test UI that can also serve as a sample usage documentation.
+- Separated the Release notes from the main code file
+
+Release 0.5.1:
+- Support for more numbers notations
+- Added a negative test suite for unsupported features 
+- Added tests for unsupported number notations
+
+Release 0.5.0:
+- Added a compiler. Expressions can either be interpreted through the Runner or compiled to anonymous functions.
+
+Release 0.4.1:
+- Optimization and more accurate array parsing
+
+Release 0.4:
+- Support for both single and double quote strings
+- Support for arrays primitives: [1, 2, 3]
+- Support for adressing arrays: var[i]
+
+Release 0.3:
+- Support for multiple arguments.
+
+Release 0.2:
+- Evaluate simple functionnal expression (without operators) 
+- Secure execution by use of an explicit scope
+- Caching of parsed expressions
+- Parsing of expression to a lambda tree and ability to execute the tree
+
+</pre>
+
+
+
+				</div>
+			</div>
+
+			<div id="secondary">
+				<div class="content">
+					<ul>
+						<li><a href="index.html">Home</a></li>
+						<li><a href="release-notes.html">Release Notes</a></li>
+						<li><a href="tests.html">Test Suite</a></li>
+						<li><a href="performance.html">Performance Benchmarks</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div id="footer">
+				<div class="content">
+					Copyright 2010 Mathieu Sylvain - Licensed as open source but I didnt find the  time to choose a license yet!
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
