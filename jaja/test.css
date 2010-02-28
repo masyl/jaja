@@ -1,0 +1,157 @@
+.testResults {
+	font-size: 0.9em;
+}
+
+.testResults h2 {
+	font-size: 1.3em;
+	padding: 10px 10px;
+	margin: 0px !important;
+	background: #111;
+}
+.testResults h2 .label {
+	padding-right: 20px;
+}
+
+.testResults table {
+	background: #333;
+	margin: 0px 0px 20px 0px;
+	border-spacing: 0px;
+	width: 100%;
+	border: none;
+	border-collapse: separate !important;
+}
+
+.testResults table thead tr {
+	background: #222;
+	border: none;
+}
+
+.testResults table thead td {
+	font-weight: bold;
+	border: none;
+}
+
+.testResults table tbody {
+}
+
+.testResults table td {
+	border: none;
+	padding: 5px 10px;
+	border-top: 1px solid #000;
+	border-right: 1px solid #000;
+	vertical-align: top;
+}
+
+.testResults table td.isOk {
+	background: #009900;
+	border-top: 1px solid #00AA00;
+	border-left: 1px solid #00AA00;
+	border-right: 1px solid #006600;
+	border-bottom: 1px solid #006600;
+}
+
+.testResults table td.isFailed {
+	background: #990000;
+	border-top: 1px solid #AA0000;
+	border-left: 1px solid #AA0000;
+	border-right: 1px solid #660000;
+	border-bottom: 1px solid #660000;
+	font-weight: bold;
+	color: #fff;
+}
+
+.testResults table tr.isUnsupported td.isFailed {
+	background: #DDDD22;
+	border-top: 1px solid #EEEE44;
+	border-left: 1px solid #EEEE44;
+	border-right: 1px solid #AAAA00;
+	border-bottom: 1px solid #AAAA00;
+	font-weight: bold;
+	font-size: 0.8em;
+	color: #000;
+}
+.testResults table tr.isUnsupported td {
+	color: #999;
+	font-weight: bold;
+}
+
+.testResults .testCell-code {
+	font-family: monospace;
+	font-size: 1.2em;
+	color: #4444FF;
+}
+.testResults .testCell-compiled,
+.testResults .testCell-interpreted {
+	text-align: center;
+	width: 50px;
+}
+.testResults .testCell-note {
+	width: 22px;
+	text-align: center;
+}
+.testResults .testCell-note a {
+	display: block;
+	width: 18px;
+	height: 18px;
+	color: #fff;
+	background: #4444BB;
+	text-decoration: none;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.testResults .testResults h2 span.label {
+	padding-right: 20px;
+}
+.testResults .testCount {
+	position: relative;
+	font-size: 0.8em;
+	font-weight: normal;
+}
+.testResults .testCount span {
+	border-left: 1px solid #666;
+	padding: 0px 15px 0px 15px;
+	color: #AAA;
+}
+.testResults .testCount .countOk.moreThanOne {
+	color: #00AA00;
+	font-weight: bold;
+}
+.testResults .testCount .countFailed.moreThanOne {
+	color: #AA0000;
+	font-weight: bold;
+}
+.testResults .testCount .countUnsupported.moreThanOne {
+	color: #999900;
+	font-weight: bold;
+}
+
+.testResults .errorMessage {
+	background: #DD2222;
+	font-weight: bold;
+	font-size: 1em;
+	color: #fff;
+	margin: 5px 0px 5px 0px;
+	padding: 10px 10px 10px 10px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+}
+
+
+.testResults .compiledCodeRow {
+	display: none;
+}
+.testResults .compiledCode {
+	background: #000;
+	font-weight: bold;
+	font-size: 1em;
+	color: #fff;
+	margin: 5px 0px 5px 0px;
+	padding: 10px 10px 10px 10px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+}
+
+
+
+
