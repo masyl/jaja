@@ -1,0 +1,23 @@
+html {
+	background: none;
+}
+body {
+	border-collapse: separate;
+	background: #000 url(images/darkFancyBurlap.png) repeat-x;
+}
+h1 {
+	font-size: 2.1em !important;
+	color: #cfff88;
+}
+h2 {
+	font-size: 1.8em !important;
+	color: #cfffAA;
+}
+h3 {}
+.container {
+	border-top: 1px solid #000;
+}
+
+.clear {
+	clear: both;
+}

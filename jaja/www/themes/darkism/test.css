@@ -3,10 +3,9 @@
 }
 
 .testResults h2 {
-	font-size: 1.3em;
-	padding: 10px 10px;
+	font-size: 1.3em !important;
+	padding: 10px 0px;
 	margin: 0px !important;
-	background: #111;
 }
 .testResults h2 .label {
 	padding-right: 20px;
@@ -22,7 +21,7 @@
 }
 
 .testResults table thead tr {
-	background: #222;
+	background: #111;
 	border: none;
 }
 

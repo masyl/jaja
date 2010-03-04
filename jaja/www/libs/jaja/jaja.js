@@ -3,6 +3,18 @@
 
 	Read "release-notes.txt" for more details.
 
+	"Javascript is good enough for itself!", Mathieu Sylvain 2010
+
+	VARIOUS TODOS:
+		- Convrrt all project files to UTF 8
+		- Add "Evil is Eval" rationnal in the web documentation
+		- Review documentation for typos
+		- Add a download page in the web documenation
+		- Add a contribute page in the web documenation
+		- Add a roadmap page in the web documenation
+	
+	
+
 */
 // This little helper routine is usefull when strugling with
 // loops caused by broken recursive routines
@@ -477,7 +489,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			"val": function (value, scope, args) {
 				// TODO: To save space and adressing/lookup time, should content o
 				// the scope be sent as parameters instead of an object ?
-				value = value + "scope." + args[0];
+				value = value + "this." + args[0];
 				return value;
 			},
 			// Get a member property from the current expresion value
@@ -571,9 +583,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			compiler = new Compiler();
 			code = compiler.evalNextLambda(lambdaArray, 1, "", [baseScope]);
 			//console.log("code: ", code);
-			func = new Function("scope", "return " + code + ";");
+			func = new Function("return " + code + ";");
 			//console.log("func: ", func.toString());
-			value = func(baseScope);
+			value = func.call(baseScope);
 			//console.log("value: ", value);
 			return value;
 		}

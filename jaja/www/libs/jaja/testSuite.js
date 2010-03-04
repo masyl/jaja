@@ -206,14 +206,13 @@ function testSuite() {
 					label: "Fractions",
 					code: "1.2",
 					value: 1.2
-				}
-				/*
-				{
-					label: "",
-					code: "",
-					value: ""
 				},
-				*/
+				{
+					label: "Some test...",
+					code: "foo",
+					value: "bar",
+					data: {foo: "bar" },
+				},
 			],
 		},
 		{
