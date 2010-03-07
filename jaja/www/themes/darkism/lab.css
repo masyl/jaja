@@ -1,14 +1,20 @@
 
 .jajaLab {
 }
+.jajaLab input[type=text],
+.jajaLab textarea {
+	color: #000;
+	border: none !important;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+}
 .jajaLab textarea {
 	font-family: monospace;
-	color: #000;
 	font-size: 1.6em;
 	font-weight: bold;
 	line-height: 1.3em;
-	border: none !important;
 }
+.jajaLab input[type=text]:focus,
 .jajaLab textarea:focus {
 	border: none !important;
 	outline-style: none;
@@ -20,11 +26,11 @@
 }
 .jajaLab label {
 	display: block;
-	margin-bottom: 3px;
+	margin: 3px 0px;
 }
 .jajaLab .codeInput {
-	border-radius: 5px;
-	-moz-border-radius: 5px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
 	backgournd: #fff;
 	width: 100%;
 	height: 90px;

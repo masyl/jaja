@@ -33,13 +33,15 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 */
 (function ($) {
 
-	var defaultOptions = {};
+	var defaultOptions = {
+		inputKeypressDelay: 500
+	};
 
-	var jajaLabPlugin = function(paramOptions) {
+	var jajaLabPlugin = function (paramOptions) {
 		return this.each(jajaLab);
-	}
+	};
 
-	var jajaLab = function(paramOptions) {
+	var jajaLab = function (paramOptions) {
 
 		//Todo: overlaod options
 
@@ -132,6 +134,17 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				};
 			});
 
+			$testLabel.keypress(function (e) {
+				$.idle(function () {
+					$.jCookie("defaultTestLabel", $testLabel.val());
+				}, options.inputKeypressDelay);
+			});
+
+			$testExpectedResult.keypress(function (e) {
+				$.idle(function () {
+					$.jCookie("defaultExpectedResult", $testExpectedResult.val());
+				}, options.inputKeypressDelay);
+			});
 		};
 
 		this.compile = function () {
@@ -147,14 +160,14 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			}
 			$compiledCode.html("<div>" + compiledCode + "</div>").show();
 			$jajaLab.tryRun();
-		}
+		};
 
 		this.compileAfterDelay = function (delay) {
 			if (compileTimeoutId) {
 				clearTimeout(compileTimeoutId);
-			};
+			}
 			compileTimeoutId = setTimeout("window['" + compileTimeoutCallback + "']()", delay);
-		}
+		};
 
 		this.setData = function () {
 			var dataStr = $dataInput.val();
@@ -166,29 +179,19 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				data = null;
 				dataException = e;
 			}
-			//console.log("data: ", data);
 			$jajaLab.tryRun();
-		}
-/*
-				{
-					label: "Exponent notation - positive",
-					code: "1.0e+3",
-					value: 1.0e3,
-					unsupported: true,
-					note: "Support planned for future releases."
-				},
-*/
+		};
+
 		this.setTest = function () {
 			var test = '';
-			test = '{\n'
-				+ '\tlabel: "' + $testLabel.val() + '",\n'
-				+ '\tcode: "' + $codeInput.val() + '",\n'
-				+ '\tvalue: ' + $testExpectedResult.val() + ',\n'
-				+ '\tdata: ' + $dataInput.val() + ',\n'
+			test = '{\r\n'
+				+ '\tlabel: "' + $testLabel.val() + '",\r\n'
+				+ '\tcode: "' + $codeInput.val() + '",\r\n'
+				+ '\tvalue: ' + $testExpectedResult.val() + ',\r\n'
+				+ '\tdata: ' + $dataInput.val() + ',\r\n'
 				+ '},';
 			$testOutput.html(test);
-		}
-
+		};
 
 		this.tryRun = function () {
 			var val,
@@ -223,13 +226,27 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					hasError = true;
 				}
 				if (!hasError) {
-					if (referenceVal == val) {
-						this.addMessage("<strong>Outputs are identical.</strong>");
+					if (referenceVal === val) {
+						this.addMessage("<strong>Both outputs are identical.</strong>");
 					} else {
-						this.addMessage("<strong>Outputs differ.</strong>");
+						this.addMessage("<strong>Both outputs differ.</strong>");
 						hasError = true;
 					}
 				}
+				/*
+				if (!hasError) {
+					var expectedValue;
+					try {
+						expectedValue = eval($testExpectedResult.val());
+					}
+					if (expectedValue === val) {
+						this.addMessage("<strong>Returned the expected value.</strong>");
+					} else {
+						this.addMessage("<strong>Unexpected return value!</strong>");
+						hasError = true;
+					}
+				}
+				*/
 				if (!hasError) {
 					this.addMessage("<strong>Success!</strong>", false);
 				} else {
@@ -243,14 +260,14 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					this.addMessage("<strong>Exception occured: </strong>" + compilationException.message, true);
 				}
 			}
-		}
+		};
 
 		this.setDataAfterDelay = function (delay) {
 			if (setDataTimeoutId) {
 				clearTimeout(setDataTimeoutId);
 			};
 			setDataId = setTimeout("window['" + setDataTimeoutCallback + "']()", delay);
-		}
+		};
 
 		this.addMessage = function (message, isError) {
 			if (isError) {
@@ -260,12 +277,12 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			}
 			$messages.append("<div class='message'>" + message + "</div>").show();
 			return this;
-		}
+		};
 
 		this.clearMessages = function (message) {
 			$messages.empty();
 			return this;
-		}
+		};
 
 		this.init();
 

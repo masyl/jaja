@@ -221,14 +221,12 @@ function testSuite() {
 				{
 					label: "Parenteticals",
 					code: "(10+4)",
-					value: 14,
-					note: "Support planned for future releases."
+					value: 14
 				},
 				{
 					label: "Parenteticals with multiple arguments",
 					code: "(3 + 4, 4, 7, 9)",
-					value: 9,
-					note: "Support planned for future releases."
+					value: 9
 				},
 				{
 					label: "Object literals",
