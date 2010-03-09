@@ -12,8 +12,10 @@
 		- Add a download page in the web documenation
 		- Add a contribute page in the web documenation
 		- Add a roadmap page in the web documenation
-	
-	
+
+
+Dont try to render or execute empty statements;
+
 
 */
 // This little helper routine is usefull when strugling with
@@ -88,7 +90,6 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			currentChar;
 		for (i = cursor; i < exp.length; i = i + 1) {
 //			loopOk();
-//			console.log("cursor: " + i)
 			nextParser = parsers.empty;
 			currentChar = exp[i];
 			if (exceptions.indexOf(currentChar) >= 0) {
@@ -97,21 +98,26 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				nextParser = parserLookup[currentChar];
 				if (nextParser) {
 					i = nextParser.handler(exp, i, lambdas);
-				}; // Otherwise, character is simply ignored
+				} else {
+					// Otherwise, character is simply ignored
+					throw("Unknown character: " + currentChar);
+				};
 			}
 		}
 		return i;
 	};
 
 	parsers = {
-		// root parser
 		empty: function (exp, cursor, lambdas) {
+			return cursor;
+		},
+		"white" : function (exp, cursor, lambdas) {
 			return cursor;
 		},
 		"var" : function (exp, cursor, lambdas) {
 			//console.log.apply(this, arguments);
 			var i,
-				inChars = "_" + ALPHA,
+				inChars = "_$" + ALPHA,
 				keepChars = inChars + NUMERIC;
 			for (i = cursor; i < exp.length; i = i + 1) {
 				if (keepChars.indexOf(exp[i]) < 0) {
@@ -206,6 +212,11 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			lambdas.addLambda("num", [exp.substring(cursor, i)]);
 			return i - 1;
 		},
+		// Statement End Parser
+		"end" : function (exp, cursor, lambdas) {
+			lambdas.newArg();
+			return cursor;
+		},
 		// Operator parser
 		"oper" : function (exp, cursor, lambdas) {
 			// Todo: As operators support grows, this sequence of if will
@@ -255,8 +266,10 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 	};
 
 	registerParsers([
-		["_"+ALPHA, parsers["var"]],
+		["_$"+ALPHA, parsers["var"]],
+		[" ", parsers["white"]],
 		[".", parsers["get"]],
+		[";", parsers["end"]],
 		["(", parsers["parens"]],
 		["[", parsers["arr"]],
 		["'\"", parsers["str"]],
@@ -340,7 +353,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		//lambdas = {
 		this.lambdas = {
 			"root": function (value, scope, args) {
-				return args[0];
+//				console.log("root args: ", args);
+				return args[args.length];
 			},
 			"oper-add": function (value, scope, args) {
 				return value + args[0];
@@ -455,7 +469,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		//lambdas = {
 		this.lambdas = {
 			"root": function (value, scope, args) {
-				return args[0];
+//				console.log("root args: ", args, args.length);
+				return "var out = undefined; out = " + args.join("; \r\nout = ") + ";"
 			},
 			"oper-add": function (value, scope, args) {
 				value = value + ' + ' + String(args[0]);
@@ -569,8 +584,6 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		return runParsers(exp);
 	};
 
-	// Start executing the lambda tree starting from the root
-	// Start executing the lambda tree starting from the root
 	run = function (lambdaArray, baseScope) {
 		if (!this.compile) {
 			var runner = new Runner();
@@ -582,9 +595,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				value;
 			compiler = new Compiler();
 			code = compiler.evalNextLambda(lambdaArray, 1, "", [baseScope]);
-			//console.log("code: ", code);
-			func = new Function("return " + code + ";");
-			//console.log("func: ", func.toString());
+			console.log("code: ", code);
+			func = new Function(code + "return out;");
+//			console.log("func: ", func.toString());
 			value = func.call(baseScope);
 			//console.log("value: ", value);
 			return value;

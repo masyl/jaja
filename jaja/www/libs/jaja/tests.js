@@ -104,6 +104,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				hasFailedAnchor;
 
 			tests = module.tests;
+//			console.log("module", module);
 
 			$outTestList = $(".testList tbody", $outModuleContainer);
 			$outModuleContainer = $("'<div><h2><span class='label'>" + module.label + "</span><span class='testCount'></span></h2><table class='testList'><thead><tr><td></td><td style='width: 75%' >Test</td><td>Result</td><td>Interpreted</td><td>Compiled</td></tr><thead><tbody></tbody></table></div>");

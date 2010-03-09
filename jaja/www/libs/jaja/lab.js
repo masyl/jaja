@@ -152,8 +152,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			$.jCookie("defaultCode", code);
 			var failedMessage = "Compilation failed!";
 			compilationException = null;
-			try {
+			/* Try */
 				compiledCode = jaja.compile(code);
+			try {
 			} catch(e) {
 				compiledCode = "";
 				compilationException = e;
@@ -173,8 +174,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			var dataStr = $dataInput.val();
 			$.jCookie("defaultData", dataStr);
 			dataException = null;
-			try {
+			/* Try */
 				data = eval("[" + dataStr + "]")[0];
+			try {
 			} catch(e) {
 				data = null;
 				dataException = e;
@@ -202,17 +204,19 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			this.setTest();
 			if (!dataException && !compilationException) {
 				hasError = false;
+			/* Try */
+					referenceFunction = new Function(compiledCode + "; return out;");
+					console.log("referenceFunction: ", referenceFunction.toString());
 				try {
-					referenceFunction = new Function("var x = (" + compiledCode + "); return x;");
-					//console.log("referenceFunction: ", referenceFunction.toString());
 				} catch(e) {
 					this.addMessage("<strong>Failed : </strong>" + e.message, true);
 					hasError = true;
 				}
 				if (!hasError) {
-					try {
+					/* Try */
 						val = jaja.eval(code, data);
 						this.addMessage("<strong>JaJa output : </strong>" + val);
+					try {
 					} catch(e) {
 						this.addMessage("<strong>JaJa eval failed : </strong>" + e.message);
 						hasError = true;

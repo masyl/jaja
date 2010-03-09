@@ -29,6 +29,14 @@
  * @param {Object} [oOptions_], additionale cookie options { path: {String}, domain: {String}, secure {Bool} } 
  */
 jQuery.jCookie = function(sCookieName_, oValue_, oExpires_, oOptions_) {
+	// The = sign isnt supported otherwise
+	function escapeValue(str) {
+		return str.replace(new RegExp( "=", "g" ),"&eq&").replace(new RegExp( ";", "g" ),"&sc&");
+	}
+	// The = sign isnt supported otherwise
+	function unescapeValue(str) {
+		return str.replace(new RegExp( "&eq&", "g" ), "=").replace(new RegExp( "&sc&", "g" ),";");
+	}
 	
 	// cookies disabled
 	if (!navigator.cookieEnabled) { return false; }
@@ -41,6 +49,7 @@ jQuery.jCookie = function(sCookieName_, oValue_, oExpires_, oOptions_) {
 		oValue_ = oOptions_.value;
 		oExpires_ = oOptions_.expires;
 	}
+	if (oValue_) oValue_ = escapeValue(oValue_);
 	
 	// escape characters
 	sCookieName_ = encodeURI(sCookieName_);
@@ -81,9 +90,9 @@ jQuery.jCookie = function(sCookieName_, oValue_, oExpires_, oOptions_) {
 		while (_iLenght--) {
 			var _aCurrrent = _aCookies[_iLenght].split("=");
 			// find the requested one 
-			if (jQuery.trim(_aCurrrent[0]) === sCookieName_) { return decodeURI(_aCurrrent[1]); }
+			if (jQuery.trim(_aCurrrent[0]) === sCookieName_) { return unescapeValue(decodeURI(_aCurrrent[1])); }
 		}
 	}
-	
+
 	return false;
 };
