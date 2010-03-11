@@ -154,6 +154,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			compilationException = null;
 			/* Try */
 				compiledCode = jaja.compile(code);
+				console.log("compiledCode: ", compiledCode);
 			try {
 			} catch(e) {
 				compiledCode = "";
@@ -205,8 +206,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			if (!dataException && !compilationException) {
 				hasError = false;
 			/* Try */
-					referenceFunction = new Function(compiledCode + "; return out;");
-					console.log("referenceFunction: ", referenceFunction.toString());
+					referenceFunction = new Function(code);
+//					console.log("referenceFunction: ", referenceFunction.toString());
 				try {
 				} catch(e) {
 					this.addMessage("<strong>Failed : </strong>" + e.message, true);
@@ -223,7 +224,15 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					}
 				}
 				try {
-					referenceVal = referenceFunction.call(data);
+					// Todo: Rebuild this part by using the Fucntion constructor and
+					// building a local scope by concatenating a var statement 
+					// Or use the equivalent function from JaJa
+					// Copy the scope data in the global scope
+					for (var iData in data) {
+						window[iData] = data[iData];
+					};
+					// Evaluate the code using a standard eval
+					referenceVal = eval(code);
 					this.addMessage("<strong>Standard output : </strong>" + referenceVal);
 				} catch(e) {
 					this.addMessage("<strong>Standard eval failed : </strong>" + e.message);
