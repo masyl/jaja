@@ -16,6 +16,7 @@
 
 Dont try to render or execute empty statements;
 
+HANDLE CLOSING PARENS WHEN HANDLING ARRAYS
 
 */
 // This little helper routine is usefull when strugling with
@@ -91,6 +92,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 	// The cursor param is an object containing mutliple cursor values
 	// cursor.pos / cursor.char / cursor.line
 	function parseNext(exp, cursor, lambdas, exceptions) {
+		//loopOk();
 		var nextParser,
 			currentChar;
 		for (; cursor.pos < exp.length; cursor.pos++) {
@@ -104,10 +106,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			} else {
 				cursor.char++;
 			}
-			if (exceptions.indexOf(currentChar) >= 0) {
-				// change order of conditionnal statement to make the return needless
-				return;
-			} else {
+			if (exceptions.indexOf(currentChar) < 0) {
+				// No escape char found, parsing continues as usual
 				nextParser = parserLookup[currentChar];
 				if (nextParser) {
 					nextParser.handler(exp, cursor, lambdas);
@@ -115,6 +115,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					// Otherwise, character is simply ignored
 					throw("Syntax error. Unparsable char at " + cursor.line + "-" + cursor.char + " : " + currentChar);
 				};
+			} else {
+				// Return back to the previous handler
+				return;
 			}
 		}
 	};
@@ -154,6 +157,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			cursor.pos = i-1;
 		},
 		"parens" : function (exp, cursor, lambdas) {
+			//loopOk();
 			var sequence,
 				char;
 			while (cursor.pos < exp.length) {
@@ -171,14 +175,14 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					lambdas.newArg(sequence);
 				} else if (char === ")") {
 					lambdas.exitArgs(sequence);
+					return;
 				}
 				cursor.pos++;
-				// Todo: Ever since the cursor became an object, this re-assignement is not necessary
-				// It should be removed everywhere
-				 parseNext(exp, cursor, lambdas, ",)");
+				parseNext(exp, cursor, lambdas, ",)");
 			}
 		},
 		"arr" : function (exp, cursor, lambdas) {
+			//loopOk();
 			var sequence,
 				char;
 			while (cursor.pos < exp.length) {
@@ -196,6 +200,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 					lambdas.newArg(sequence);
 				} else if (char === "]") {
 					lambdas.exitArgs(sequence);
+					return;
 				}
 				cursor.pos++;
 				parseNext(exp, cursor, lambdas, ",]")
