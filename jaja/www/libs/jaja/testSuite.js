@@ -191,15 +191,13 @@ function testSuite() {
 				{
 					label: "Exponent notation - negative",
 					code: "1.0e-3",
-					value: 1.0e3,
-					unsupported: true,
+					value: 1.0e-3,
 					note: "Support planned for future releases."
 				},
 				{
 					label: "Exponent notation - positive",
 					code: "1.0e+3",
-					value: 1.0e3,
-					unsupported: true,
+					value: 1.0e+3,
 					note: "Support planned for future releases."
 				},
 				{
@@ -257,7 +255,9 @@ function testSuite() {
 				{ label: "typeof Operator", code: "typeof('yeah')", value: "string", data: {}, unsupported: true},
 				{ label: "typeof Operator without parens", code: "typeof 'yeah'", value: "string", data: {}, unsupported: true},
 				{ label: "function call inside a function call", code: "foo.concat('-',foo.contact('-'))", value: "bar-bar-", data: {foo:'bar'}, unsupported: true},
-				{ label: "Multiple statements", code: "1;2;3;foo;", value: 3, data: {foo:'bar'}, unsupported: true},
+				{ label: "Multiple statements with trailing semicolor", code: "1;2;3;foo;", value: "bar", data: {foo:'bar'}},
+				{ label: "Multiple statements without trailing semicolor", code: "1;2;3;foo", value: "bar", data: {foo:'bar'}},
+				{ label: "Semicolons with empty statements", code: "1;;;2;3;;;foo;", value: "bar", data: {foo:'bar'}},
 				{ label: "var Statement", code: "var foo='bar';foo;", value: 'bar', data: {}, unsupported: true},
 			]
 		},

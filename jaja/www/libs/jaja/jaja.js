@@ -221,8 +221,13 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		// Numeric parser
 		"num" : function (exp, cursor, lambdas) {
 			var i,
+				isExponent = false;
 				keepChars = NUMERIC + ".xabcdefXABCDEF";
 			for (i = cursor.pos; i < exp.length; i = i + 1) {
+				if (exp[i].toUpperCase() === "E") {
+					isExponent = true;
+					keepChars = keepChars + "+-";
+				}
 				if (keepChars.indexOf(exp[i]) < 0) {
 					break;
 				}
@@ -366,7 +371,12 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 		//lambdas = {
 		this.lambdas = {
 			"root": function (value, scope, args) {
-				return args[args.length];
+//				console.log("wtf: ");
+//				console.log("wtf: ", args[args.length]);
+				for (var i=args.length; i>0; i--) {
+					if (typeof(args[i-1]) !== "undefined") return args[i-1];
+				}
+				return undefined;
 			},
 			"oper-add": function (value, scope, args) {
 				return value + args[0];
@@ -482,8 +492,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				// todo: find a bullet proof way to name the buffer var of the last statement
 				var code = "",
 					varCode = [],
-					iVar,
-					lastStatement = "var out = " + args.pop() + ";";
+					iVar;
 				// Render root scope variables
 				for (iVar in lambdaMeta.root.scope) {
 					varCode.push(iVar + " = scope.get('" + iVar + "')");
@@ -491,8 +500,16 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				if (varCode.length) {
 					code = code + "var " + varCode.join(",\r\n") + ";\r\n";
 				}
+				// set the sequence "out" to the last not-empty statement
+				for (var i=args.length; i>0; i--) {
+					console.log("args[i-1]  : ", args[i-1]);
+					if (args[i-1].length) {
+						args[i-1] = "var out = " + args[i-1];
+						break;
+					}
+				}
 				// Render the list of root statements
-				code = code + args.join(";\r\n") + ";\r\n" + lastStatement;
+				code = code + args.join(";\r\n") + ";\r\n";
 				return code;
 			},
 			"oper-add": function (value, scope, args, lambdaMeta) {
