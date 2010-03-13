@@ -17,77 +17,107 @@
 			<div id="header">
 				<div class="content">
 					<h1>JaJa : Release Notes</h1>
-					<h2>Release Notes</h2>
 				</div>
 			</div>
 
 			<div id="primary">
 				<div class="content">
-<pre style="white-space: pre-line; color: #ccc; font-size: 1.2em;">
-Release 0.7.1: Library renamed to JaJa and homepage
-- Renamed the library from Lambda to JaJa in all sources and documentation 
-- Created a simple homepage
-- Moved documentation and release notes to HTML
 
-Release 0.7.0: PARENTHETICALS
-- Support for nested parentheticals: (x + b)
-- Internal changes to the lambda factory: support stack rollback when closing lambda sequences
-- Internal changes to the parser: Is now recursive and support nested sequences
+					<h4>Release 0.7.2: Refactoring and Multiple Statements</h4>
+					<ul>
+						<li>A Lab UI for testing a playing with JaJa</li>
+						<li>Cursor in parser is now a statefull object</li>
+						<li>Now throws parsing errors when encountering unsupported syntax</li>
+						<li>Support for multiple statements with the semi-colon</li>
+						<li>Moved the roadmap to its own page in the documentation</li>
+						<li>Added a few more tests for unsupported syntax</li>
+					</ul>
 
-Release 0.6.0: ARYTMETIC OPERATORS
-- Support for arithmetic operator: Addition +
-- Support for arithmetic operator: Substraction -
-- Support for arithmetic operator: Multiplication *
-- Support for arithmetic operator: Division /
-- Support for arithmetic operator: Modulus %
-- Negative and positive numbers notation
+					<h4>Release 0.7.1: Library renamed to JaJa and homepage</h4>
+					<ul>
+						<li>Renamed the library from Lambda to JaJa in all sources and documentation</li>
+						<li>Created a simple homepage</li>
+						<li>Moved documentation and release notes to HTML</li>
+					</ul>
 
-Release 0.5.3: BETTER TEST SUITE
-- Create "negative tests" for unsupported features, and annotate then as "unsupported features"
-- Add a "note" for individual tests
-- Better layout of test suite
-- Show exception details when failed
-- Add failed and successful test count in headers and top of suite
-- Put focus on first failed test
-- Ability to view the compiled source code
-- "Unsupported" test for:
-	- Object literals
-	- Constants: true, false
-	- Arythmetic operators
+					<h4>Release 0.7.0: PARENTHETICALS</h4>
+					<ul>
+						<li>Support for nested parentheticals: (x + b)</li>
+						<li>Internal changes to the lambda factory: support stack rollback when closing lambda sequences</li>
+						<li>Internal changes to the parser: Is now recursive and support nested sequences</li>
+					</ul>
 
-Release 0.5.2:
-- Created a custom testing suite to handle both compiled and interpreted mode.
-- Created a test UI that can also serve as a sample usage documentation.
-- Separated the Release notes from the main code file
+					<h4>Release 0.6.0: ARYTMETIC OPERATORS</h4>
+					<ul>
+						<li>Support for arithmetic operator: Addition +</li>
+						<li>Support for arithmetic operator: Substraction -</li>
+						<li>Support for arithmetic operator: Multiplication *</li>
+						<li>Support for arithmetic operator: Division /</li>
+						<li>Support for arithmetic operator: Modulus %</li>
+						<li>Negative and positive numbers notation</li>
+					</ul>
 
-Release 0.5.1:
-- Support for more numbers notations
-- Added a negative test suite for unsupported features 
-- Added tests for unsupported number notations
+					<h4>Release 0.5.3: BETTER TEST SUITE</h4>
+					<ul>
+						<li>Create "negative tests" for unsupported features, and annotate then as "unsupported features"</li>
+						<li>Add a "note" for individual tests</li>
+						<li>Better layout of test suite</li>
+						<li>Show exception details when failed</li>
+						<li>Add failed and successful test count in headers and top of suite</li>
+						<li>Put focus on first failed test</li>
+						<li>Ability to view the compiled source code</li>
+						<li>"Unsupported" test for:
+							<ul>
+								<li>Object literals</li>
+								<li>Constants: true, false</li>
+								<li>Arythmetic operators</li>
+							</ul>
+						</li>
+					</ul>
 
-Release 0.5.0:
-- Added a compiler. Expressions can either be interpreted through the Runner or compiled to anonymous functions.
+					<h4>Release 0.5.2:</h4>
+					<ul>
+						<li>Created a custom testing suite to handle both compiled and interpreted mode.</li>
+						<li>Created a test UI that can also serve as a sample usage documentation.</li>
+						<li>Separated the Release notes from the main code file</li>
+					</ul>
 
-Release 0.4.1:
-- Optimization and more accurate array parsing
+					<h4>Release 0.5.1:</h4>
+					<ul>
+						<li>Support for more numbers notations</li>
+						<li>Added a negative test suite for unsupported features</li>
+						<li>Added tests for unsupported number notations</li>
+					</ul>
 
-Release 0.4:
-- Support for both single and double quote strings
-- Support for arrays primitives: [1, 2, 3]
-- Support for adressing arrays: var[i]
+					<h4>Release 0.5.0:</h4>
+					<ul>
+						<li>Added a compiler. Expressions can either be interpreted through the Runner or compiled to anonymous functions.
+					</ul>
 
-Release 0.3:
-- Support for multiple arguments.
+					<h4>Release 0.4.1:</h4>
+					<ul>
+						<li>Optimization and more accurate array parsing</li>
+					</ul>
 
-Release 0.2:
-- Evaluate simple functionnal expression (without operators) 
-- Secure execution by use of an explicit scope
-- Caching of parsed expressions
-- Parsing of expression to a lambda tree and ability to execute the tree
+					<h4>Release 0.4:</h4>
+					<ul>
+						<li>Support for both single and double quote strings</li>
+						<li>Support for arrays primitives: [1, 2, 3]</li>
+						<li>Support for adressing arrays: var[i]</li>
+					</ul>
 
-</pre>
+					<h4>Release 0.3:</h4>
+					<ul>
+						<li>Support for multiple arguments.</li>
+					</ul>
 
-
+					<h4>Release 0.2:</h4>
+					<ul>
+						<li>Evaluate simple functionnal expression (without operators)</li>
+						<li>Secure execution by use of an explicit scope</li>
+						<li>Caching of parsed expressions</li>
+						<li>Parsing of expression to a lambda tree and ability to execute the tree</li>
+					</ul>
 
 				</div>
 			</div>
@@ -99,6 +129,7 @@ Release 0.2:
 						<li><a href="lab.html">Lab</a></li>
 						<li><a href="tests.html">Test Suite</a></li>
 						<!-- <li><a href="performance.html">Performance Benchmarks</a></li> -->
+						<li><a href="roadmap.html">Roadmap</a></li>
 						<li><a href="release-notes.html">Release Notes</a></li>
 					</ul>
 				</div>
@@ -111,6 +142,10 @@ Release 0.2:
 			</div>
 		</div>
 		<script src="libs/jquery-1.4/jquery-1.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="libs/jquery.mockConsole-1.0/jquery.mockConsole-1.0.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" charset="utf-8">
+			$.mockConsole()
+		</script>
 		<script src="libs/cufon-yui-1.09/cufon-yui-1.09.js" type="text/javascript" charset="utf-8"></script>
 		<script src="themes/darkism/fonts/AndikaBasicR_10/Andika_Basic_400.font.js" type="text/javascript" charset="utf-8"></script>
 		<script src="scripts/main.js" type="text/javascript" charset="utf-8"></script>

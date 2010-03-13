@@ -1,12 +1,19 @@
 /*
-	jaja v0.7.0
+	JaJa - Javascript in Javascript
 
-	Read "release-notes.txt" for more details.
+	JaJa is a meta-interpreter. In other words, JaJa is a javascript
+	interpreter built in javasript. It parses javascript code and converts
+	it to a symbolic structure called a lambda tree. From there, it can
+	re-compile it or execute as "managed code". When code goes through JaJa
+	it can undergo various transformation in order to control its capabilities.
 
 	"Javascript is good enough for itself!", Mathieu Sylvain 2010
 
 	VARIOUS TODOS:
-		- Convrrt all project files to UTF 8
+		- Release the website
+		- Start logging bugs and issues
+		- Fill github wiki
+		- Convert all project files to UTF 8
 		- Add "Evil is Eval" rationnal in the web documentation
 		- Review documentation for typos
 		- Add a download page in the web documenation
