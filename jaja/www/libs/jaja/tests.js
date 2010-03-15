@@ -46,7 +46,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				err = {};
 			jaja.useCompiler = true;
 			try {
-				result.compiler.result = jaja.eval(test.code, fixtures);
+				result.compiler.result = jaja.evaluate(test.code, fixtures);
 				if (result.compiler.result === test.value) {
 					result.compiler.ok = true;
 				} else {
@@ -65,7 +65,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			};
 			jaja.useCompiler = false;
 			try {
-				result.interpreter.result = jaja.eval(test.code, fixtures);
+				result.interpreter.result = jaja.evaluate(test.code, fixtures);
 				if (result.interpreter.result === test.value) {
 					result.interpreter.ok = true;
 				} else {
@@ -158,7 +158,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				}
 
 				$(".testCell-code a", $testOut).click(function(e){
-				 	console.log($compiledCode, e);
+//				 	console.log($compiledCode, e);
 					e.preventDefault();
 					$compiledCode.toggle();
 				});

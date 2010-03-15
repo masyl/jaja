@@ -153,9 +153,9 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			var failedMessage = "Compilation failed!";
 			compilationException = null;
 			/* Try */
-				compiledCode = jaja.compile(code);
-				console.log("compiledCode: ", compiledCode);
 			try {
+				compiledCode = jaja.compile(code);
+				//console.log("compiledCode: ", compiledCode);
 			} catch(e) {
 				compiledCode = "";
 				compilationException = e;
@@ -176,8 +176,8 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			$.jCookie("defaultData", dataStr);
 			dataException = null;
 			/* Try */
-				data = eval("[" + dataStr + "]")[0];
 			try {
+				data = eval("[" + dataStr + "]")[0];
 			} catch(e) {
 				data = null;
 				dataException = e;
@@ -215,7 +215,7 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 				}
 				if (!hasError) {
 					/* Try */
-						val = jaja.eval(code, data);
+						val = jaja.evaluate(code, data);
 						this.addMessage("<strong>JaJa output : </strong>" + val);
 					try {
 					} catch(e) {
