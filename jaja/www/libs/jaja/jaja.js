@@ -179,7 +179,7 @@ global console
 				lambdaTree = cachedExpressions[expression];
 			if (!lambdaTree) {
 				// If the expression isn't in the cache, it parses it and then cache it
-				lambdaTree = this.jaja(expression).lambdas;
+				lambdaTree = this.parse(expression).lambdas;
 				cachedExpressions[expression] = lambdaTree;
 			}
 			compiler = new this.interpreters.compiler();

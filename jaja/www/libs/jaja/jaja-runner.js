@@ -7,11 +7,8 @@
 		jaja.interpreters.runner = function () {
 	
 			// lambdas: The collection of lambda handlers used to execute a lambda tree
-			//lambdas = {
 			this.lambdas = {
 				"root": function (value, scope, args) {
-	//				console.log("wtf: ");
-	//				console.log("wtf: ", args[args.length]);
 					for (var i=args.length; i>0; i--) {
 						if (typeof(args[i-1]) !== "undefined") {
 							return args[i-1];
@@ -34,7 +31,6 @@
 				"oper-modulo": function (value, scope, args) {
 					return value % args[0];
 				},
-				// Get a property from the global scope
 				"str": function (value, scope, args) {
 					return String(args[0]);
 				},
@@ -97,11 +93,9 @@
 				if (args) {
 					for (i = 0; i < args.length; i = i + 1) {
 						arg = args[i];
-						//console.log("arg", arg);
-						//console.log("arg.length", arg.length);
 						// If the item is a 2 member array it is deemed to be a lambda
-						// Todo: test performance impact of this type of detection
-						// Todo: See if this procludes the use of arrays as values...
+						// Todo: This sort of silly detection is a good argument for using an richer object instead
+						// of an array to represent the lambda tree
 						if (arg.sort && arg.length > 0) {
 							// Note that when evaluating each arguments, the "value" argument is set to null
 							// because each arg is a fresh expression in itself

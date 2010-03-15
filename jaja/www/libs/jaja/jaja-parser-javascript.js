@@ -19,6 +19,7 @@
 				//console.log.apply(this, arguments);
 				var i,
 					varName,
+					// Todo: Lookup the real rules in the Javascript RFC
 					inChars = "_$" + ALPHA,
 					keepChars = inChars + NUMERIC;
 				for (i = cursor.pos; i < exp.length; i = i + 1) {
@@ -161,19 +162,6 @@
 				[NUMERIC, handlers.num]
 			]
 		};
-
-/*
-
-
-		// Todo: Eventually, the parser registration pattern should be
-		// externalized in order to provider language extensions or
-		// to provider smaller language subsets
-		registerParsers();
-
-
-
-*/
-
 
 	}
 }(this.jaja));
