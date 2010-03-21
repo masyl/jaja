@@ -31,6 +31,12 @@
 				"oper-modulo": function (value, scope, args) {
 					return value % args[0];
 				},
+				"oper-equal": function (value, scope, args) {
+					return value == args[0];
+				},
+				"oper-assign": function (value, scope, args) {
+					return value = args[0];
+				},
 				"str": function (value, scope, args) {
 					return String(args[0]);
 				},

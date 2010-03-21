@@ -21,6 +21,11 @@
 		- Add a roadmap page in the web documenation
 
 
+BUG:
+	Works: (foo+foo);(foo = "bar2"); (foo == foo); foo == "bar2";
+	Doesnt:  foo+foo;foo = "bar2"; foo == foo; foo == "bar2";
+
+
 Dont try to render or execute empty statements;
 
 HANDLE CLOSING PARENS WHEN HANDLING ARRAYS
@@ -66,24 +71,47 @@ global console
 	The lambda tree also keeps a list of scope variables.
 	*/
 	// TODO: "Arg" should probably changed to "Seq" for Sequence 
+
 	function LambdasFactory() {
-		this.lambdas = [];
-		this.lambdas.scope = {};
+
+		this.Sequence = function () {
+			this.scope = {};
+			this.lambdas = [];
+			this.add = function (lambda) {
+				console.log("Sequence.add lambda :  ", lambda);
+				this.lambdas.push(lambda);
+			};
+		};
+		// Find a better way to call upon root
+		this.Lambda = function (type, args, root) {
+			this.type = type;
+			this.args = args;
+			this.root = root;
+			this.add = function(arg) {
+				console.log("Lambda.add arg :  ", arg);
+				this.args.push(arg);
+			};
+		};
+
+		this.lambdas = new this.Sequence();
 		this.latestLambda = null;
 		this.latestSequence = this.lambdas;
 		this.stack = [this.latestSequence];
-		this.addLambda = function (id, args) {
+		this.addLambda = function (type, args) {
 			// Create a new lambda
-			this.latestLambda = [id, args];
-			this.latestLambda.root = this.lambdas;
-			this.latestSequence.push(this.latestLambda);
+			this.latestLambda = new this.Lambda(type, args, this.lambdas);
+			this.latestSequence.add(this.latestLambda);
 		};
 		this.intoArgs = function () {
+// ???
 			//console.log("INTO ARGS: ", this.latestLambda);
-			this.latestSequence = this.latestLambda[1];
+			// WTF : Seuqence or args???
+			this.latestSequence = this.latestLambda;
 			this.stack.push(this.latestSequence);
 			return this.latestSequence;
 		};
+
+		// TODO: Figure out if newArg should accept sequence, lambdas or both
 		this.newArg = function (sequence) {
 			var last;
 			if (sequence) {
@@ -94,8 +122,10 @@ global console
 				}
 			}
 			var parentSequence = this.stack[this.stack.length-1];
-			this.latestSequence = [];
-			parentSequence.push(this.latestSequence);
+			this.latestSequence = new this.Sequence();
+//			console.log("parentSequence should be obj : ", parentSequence, this.latestSequence, this.stack);
+			// WTF? Why is a sequence adding another sequence ????
+			parentSequence.add(this.latestSequence);
 		};
 		this.exitArgs = function (sequence) {
 			// Roll back stack to the reference sequence
@@ -109,7 +139,8 @@ global console
 			}
 			// Pop the found sequence out of the stack
 			this.stack.pop();
-			this.latestSequence = this.stack[this.stack.length-1][0];
+			this.latestSequence = this.stack[this.stack.length-1];
+			console.log("exitArgs this.latestSequence : ", this.latestSequence);
 		};
 	};
 

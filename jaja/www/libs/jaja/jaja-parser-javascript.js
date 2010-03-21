@@ -143,6 +143,13 @@
 					lambdas.addLambda("oper-divide", []);
 				} else if (chr==="%") {
 					lambdas.addLambda("oper-modulo", []);
+				} else if (chr==="=") {
+					if (exp[cursor.pos+1] === "=") {
+						cursor.pos++;
+						lambdas.addLambda("oper-equal", []);
+					} else {
+						lambdas.addLambda("oper-assign", []);
+					}
 				}
 				lambdas.intoArgs();
 				lambdas.newArg();
@@ -158,7 +165,7 @@
 				["(", handlers.parens],
 				["[", handlers.arr],
 				["'\"", handlers.str],
-				["+-/*%?&|^~><", handlers.oper],
+				["+-/*%?&|^~><=", handlers.oper],
 				[NUMERIC, handlers.num]
 			]
 		};

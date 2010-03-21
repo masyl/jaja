@@ -10,6 +10,7 @@
 			//lambdas = {
 			this.lambdas = {
 				"root": function (value, scope, args, lambdaMeta) {
+					console.log("args: ", args);
 					// todo: find a bullet proof way to name the buffer var of the last statement
 					var code = "",
 						varCode = [],
@@ -52,6 +53,14 @@
 				},
 				"oper-modulo": function (value, scope, args, lambdaMeta) {
 					value = value + ' % ' + String(args[0]);
+					return value;
+				},
+				"oper-equal": function (value, scope, args, lambdaMeta) {
+					value = value + ' == ' + String(args[0]);
+					return value;
+				},
+				"oper-assign": function (value, scope, args, lambdaMeta) {
+					value = value + ' = ' + String(args[0]);
 					return value;
 				},
 				// Get a property from the global scope

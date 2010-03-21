@@ -70,6 +70,8 @@
 					line : 1
 				};
 				this.next(exp, cursor, lambdas, "");
+				console.log("lambdas: ", lambdas);
+				console.dir(lambdas.lambdas);
 				return lambdas;
 			}
 	

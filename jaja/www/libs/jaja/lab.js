@@ -297,7 +297,23 @@ jslint white: true, devel: true, debug: true, onevar: true, undef: true, nomen: 
 			return this;
 		};
 
+
+		this.renderLambdas = function (root) {
+			function renderLamba(lambda) {
+				
+			};
+			function renderSequence(sequence) {
+				return "";	
+			};
+			function renderArgs(arg) {
+				
+			};
+			var renderedRoot = renderSequence(root);
+			$(".lambdas").html(renderedRoot);
+		};
+
 		this.init();
+
 
 	}
 
